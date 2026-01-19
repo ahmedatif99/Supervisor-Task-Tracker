@@ -14,10 +14,10 @@ export const LanguageToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      className="gap-2 text-muted-foreground hover:text-foreground"
+      className="gap-2 text-white hover:text-foreground"
     >
       <Globe className="h-4 w-4" />
-      <span className="font-medium">{language === 'en' ? 'العربية' : 'English'}</span>
+      <span className="font-medium ">{language === 'en' ? 'العربية' : 'English'}</span>
     </Button>
   );
 };

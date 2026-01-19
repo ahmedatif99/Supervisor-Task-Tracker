@@ -4,10 +4,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from './LanguageToggle';
 import { Button } from '@/components/ui/button';
-import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  ClipboardList,
+  LogOut,
   Menu,
   X,
   ChevronRight
@@ -26,11 +26,11 @@ export const Layout = ({ children }: LayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = isAdmin
-    ? [{ href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') }]
-    : [
-        { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
-        { href: '/task-entry', icon: ClipboardList, label: t('nav.entry') },
-      ];
+    ? [
+      { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
+      { href: '/task-entry', icon: ClipboardList, label: t('nav.entry') },
+    ]
+    : [{ href: '/my-stats', icon: LayoutDashboard, label: t('nav.myStats') }];
 
   const isActive = (path: string) => location.pathname === path;
 

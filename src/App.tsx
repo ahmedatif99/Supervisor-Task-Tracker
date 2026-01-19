@@ -10,16 +10,25 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import TaskEntry from "./pages/TaskEntry";
 import NotFound from "./pages/NotFound";
+import SupervisorStats from "./pages/SupervisorStats";
+import SupervisorDetail from "./pages/SupervisorDetail";
+
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  
+const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
+  const { isAuthenticated, user } = useAuth();
+
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
-  
+
+
+  // If admin-only route and user is not admin, redirect to supervisor stats
+  if (adminOnly && user?.isAdmin) {
+    return <Navigate to="/my-stats" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -34,22 +43,39 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route 
-                  path="/dashboard" 
+                <Route
+                  path="/dashboard"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute adminOnly>
                       <Dashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/task-entry" 
+                <Route
+                  path="/task-entry"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute adminOnly>
                       <TaskEntry />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
+                <Route
+                  path="/my-stats"
+                  element={
+                    <ProtectedRoute>
+                      <SupervisorStats />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/supervisor/:id"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <SupervisorDetail />
+                    </ProtectedRoute>
+                  }
+                />
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

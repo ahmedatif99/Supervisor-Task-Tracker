@@ -16,9 +16,10 @@ const translations: Record<Language, Record<string, string>> = {
     'app.subtitle': 'Track hourly tasks and generate performance evaluations',
     'nav.dashboard': 'Dashboard',
     'nav.entry': 'Task Entry',
+    'nav.myStats': 'My Statistics',
     'nav.logout': 'Logout',
     'nav.login': 'Login',
-    
+
     // Auth
     'auth.welcome': 'Welcome Back',
     'auth.signin': 'Sign in to your account',
@@ -28,7 +29,16 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.supervisor': 'Supervisor',
     'auth.admin': 'Admin',
     'auth.selectRole': 'Select your role',
-    
+
+    "supervisor.name": "Supervisor Name",
+    "supervisor.email": "Supervisor Email",
+    "Ename": "Enter name...",
+    "Emname": "Enter email...",
+    "cancel": "cancel",
+    "add": "Add",
+    "Addanew": "Add a new supervisor to the system",
+
+
     // Task Entry
     'task.entry': 'Task Entry',
     'task.date': 'Date',
@@ -41,9 +51,26 @@ const translations: Record<Language, Record<string, string>> = {
     'task.today': "Today's Tasks",
     'task.weekly': 'Weekly Tasks',
     'task.monthly': 'Monthly Tasks',
-    
+    'task.supervisor': 'Supervisor',
+    'task.selectSupervisorPlaceholder': 'Select a supervisor...',
+    'task.adminEntryDesc': 'Enter task data for supervisors',
+    'task.recentEntries': 'Recent Entries',
+    'task.fillRequired': 'Please fill in all required fields',
+    'task.descriptionPlaceholder': 'Describe the tasks completed...',
+    "task.selectSupervisor": "Select a supervisor",
+    "task.points": "Points",
+
+    // Supervisor view
+    'supervisor.myStats': 'My Statistics',
+    'supervisor.viewOnlyDesc': 'View your task performance and history',
+    'supervisor.taskHistory': 'Task History',
+    'supervisor.noTasks': 'No tasks recorded yet',
+    'supervisor.adminWillAdd': 'The admin will add your task data',
+    "actions": "Actions",
+
     // Dashboard
     'dashboard.title': 'Performance Dashboard',
+    'Monitor.supervisor ': 'Monitor supervisor performance and task completion',
     'dashboard.rankings': 'Supervisor Rankings',
     'dashboard.filter': 'Filter by Period',
     'dashboard.daily': 'Daily',
@@ -58,12 +85,26 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.avgDaily': 'Avg Daily',
     'dashboard.topPerformer': 'Top Performer',
     'dashboard.supervisors': 'Supervisors',
-    
+    'supervisor.add': 'Add Supervisors',
+
     // Stats
     'stats.hourly': 'Hourly Tasks',
     'stats.daily': 'Daily Tasks',
     'stats.weekly': 'Weekly Tasks',
     'stats.monthly': 'Monthly Tasks',
+    "recent.activity": "النشاط الأخير",
+    "tasks": "tasks",
+
+    // Supervisor Detail
+    'supervisorDetail.backToDashboard': 'Back to Dashboard',
+    'supervisorDetail.notFound': 'Supervisor not found',
+    'supervisorDetail.totalTasks': 'Total Tasks',
+    'supervisorDetail.daysWorked': 'Days Worked',
+    'supervisorDetail.avgPerDay': 'Avg Tasks/Day',
+    'supervisorDetail.allTasks': 'All Tasks',
+    'supervisorDetail.timeRange': 'Time Range',
+    'supervisorDetail.noDescription': 'No description',
+    'dashboard.clickToView': 'Click to view details',
   },
   ar: {
     // Common
@@ -71,9 +112,10 @@ const translations: Record<Language, Record<string, string>> = {
     'app.subtitle': 'تتبع المهام بالساعة وإنشاء تقييمات الأداء',
     'nav.dashboard': 'لوحة التحكم',
     'nav.entry': 'إدخال المهام',
+    'nav.myStats': 'إحصائياتي',
     'nav.logout': 'تسجيل الخروج',
     'nav.login': 'تسجيل الدخول',
-    
+
     // Auth
     'auth.welcome': 'مرحباً بعودتك',
     'auth.signin': 'سجل دخول إلى حسابك',
@@ -83,7 +125,15 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.supervisor': 'مشرف',
     'auth.admin': 'مدير',
     'auth.selectRole': 'اختر دورك',
-    
+
+    "supervisor.name": "اسم المشرف",
+    "supervisor.email": "البريد الإلكتروني للمشرف",
+    "Ename": "أدخل الاسم...",
+    "Emname": "أدخل البريد الالكتروني...",
+    "cancel": "إلغاء",
+    "add": "إضافة",
+    "Addanew": "أضف مشرفًا جديدًا إلى النظام.",
+
     // Task Entry
     'task.entry': 'إدخال المهام',
     'task.date': 'التاريخ',
@@ -96,9 +146,26 @@ const translations: Record<Language, Record<string, string>> = {
     'task.today': 'مهام اليوم',
     'task.weekly': 'مهام الأسبوع',
     'task.monthly': 'مهام الشهر',
-    
+    'task.supervisor': 'المشرف',
+    'task.selectSupervisorPlaceholder': 'اختر مشرفاً...',
+    'task.adminEntryDesc': 'أدخل بيانات المهام للمشرفين',
+    'task.recentEntries': 'الإدخالات الأخيرة',
+    'task.fillRequired': 'يرجى ملء جميع الحقول المطلوبة',
+    'task.descriptionPlaceholder': 'صف المهام المنجزة...',
+    "task.selectSupervisor": "اختر مشرفًا",
+    "task.points": "نقاط المهمة",
+
+    // Supervisor view
+    'supervisor.myStats': 'إحصائياتي',
+    'supervisor.viewOnlyDesc': 'عرض أداء مهامك وسجلها',
+    'supervisor.taskHistory': 'سجل المهام',
+    'supervisor.noTasks': 'لم يتم تسجيل مهام بعد',
+    'supervisor.adminWillAdd': 'سيقوم المدير بإضافة بيانات مهامك',
+    "actions": "الإجراءات",
+
     // Dashboard
     'dashboard.title': 'لوحة الأداء',
+    'Monitor.supervisor': "مراقبة أداء المشرف وإنجاز المهام",
     'dashboard.rankings': 'ترتيب المشرفين',
     'dashboard.filter': 'تصفية حسب الفترة',
     'dashboard.daily': 'يومي',
@@ -113,12 +180,27 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.avgDaily': 'المعدل اليومي',
     'dashboard.topPerformer': 'الأفضل أداءً',
     'dashboard.supervisors': 'المشرفين',
-    
+    'supervisor.add': 'إضافة مشرفين',
+
     // Stats
     'stats.hourly': 'المهام بالساعة',
     'stats.daily': 'المهام اليومية',
     'stats.weekly': 'المهام الأسبوعية',
     'stats.monthly': 'المهام الشهرية',
+
+    "recent.activity": "النشاط الأخير",
+    "tasks": "مهمات",
+
+    // Supervisor Detail
+    'supervisorDetail.backToDashboard': 'العودة إلى لوحة التحكم',
+    'supervisorDetail.notFound': 'لم يتم العثور على المشرف',
+    'supervisorDetail.totalTasks': 'إجمالي المهام',
+    'supervisorDetail.daysWorked': 'أيام العمل',
+    'supervisorDetail.avgPerDay': 'معدل المهام/اليوم',
+    'supervisorDetail.allTasks': 'جميع المهام',
+    'supervisorDetail.timeRange': 'الفترة الزمنية',
+    'supervisorDetail.noDescription': 'لا يوجد وصف',
+    'dashboard.clickToView': 'انقر لعرض التفاصيل',
   },
 };
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTasks } from '@/contexts/TaskContext';
@@ -9,68 +10,101 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, FileText, CheckCircle, TrendingUp, CalendarDays } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Calendar, Clock, FileText, CheckCircle, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const TaskEntry = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
-  const { addTask, getSupervisorTasks } = useTasks();
-  
+  const { user, isAdmin } = useAuth();
+  const { addTask, supervisors, tasks, loading } = useTasks();
+
+  const [selectedSupervisor, setSelectedSupervisor] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
   const [taskCount, setTaskCount] = useState('');
+  const [taskPoint, setTaskPoint] = useState('');
   const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const supervisorTasks = user ? getSupervisorTasks(user.id) : [];
-  
-  const todayTasks = supervisorTasks
+  // Only admin can access this page
+  if (!isAdmin) {
+    return <Navigate to="/my-stats" replace />;
+  }
+
+  const todayTasks = tasks
     .filter(t => t.date === new Date().toISOString().split('T')[0])
     .reduce((sum, t) => sum + t.taskCount, 0);
-    
-  const weekTasks = supervisorTasks
-    .filter(t => {
-      const taskDate = new Date(t.date);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return taskDate >= weekAgo;
-    })
-    .reduce((sum, t) => sum + t.taskCount, 0);
-    
-  const monthTasks = supervisorTasks
-    .filter(t => {
-      const taskDate = new Date(t.date);
-      const monthAgo = new Date();
-      monthAgo.setMonth(monthAgo.getMonth() - 1);
-      return taskDate >= monthAgo;
-    })
-    .reduce((sum, t) => sum + t.taskCount, 0);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const totalSupervisors = supervisors.length;
+  const totalAllTasks = tasks.reduce((sum, t) => sum + t.taskCount, 0);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!timeFrom || !timeTo || !taskCount) {
-      toast.error('Please fill in all required fields');
+
+    if (!selectedSupervisor || !taskCount) {
+      toast.error(t('task.fillRequired') || 'Please fill in all required fields');
       return;
     }
 
-    addTask({
-      supervisorId: user?.id || '',
-      supervisorName: user?.name || '',
-      date,
-      timeFrom,
-      timeTo,
-      taskCount: parseInt(taskCount),
-      description,
-    });
+    const supervisor = supervisors.find(s => s.id === selectedSupervisor);
+    if (!supervisor) {
+      toast.error('Supervisor not found');
+      return;
+    }
 
-    toast.success(t('task.success'));
-    setTimeFrom('');
-    setTimeTo('');
-    setTaskCount('');
-    setDescription('');
+    setSubmitting(true);
+    try {
+      const newTask = await addTask({
+        supervisorId: supervisor.id,
+        supervisorName: supervisor.name,
+        date,
+        timeFrom: timeFrom || '',
+        timeTo: timeTo || '',
+        taskCount: parseInt(taskCount),
+        taskPoint: parseInt(taskPoint) || 0,
+        description,
+      });
+
+      if (newTask) {
+        toast.success(t('task.success'));
+        setSelectedSupervisor('');
+        setTimeFrom('');
+        setTimeTo('');
+        setTaskCount('');
+        setTaskPoint('');
+        setDescription('');
+      } else {
+        toast.error('Failed to add task');
+      }
+    } catch (error) {
+      toast.error('Error adding task');
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  // Get recent tasks for display
+  const recentTasks = [...tasks]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -79,7 +113,7 @@ const TaskEntry = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground">{t('task.entry')}</h1>
           <p className="text-muted-foreground mt-1">
-            Enter your hourly task data
+            {t('task.adminEntryDesc') || 'Enter task data for supervisors'}
           </p>
         </div>
 
@@ -92,15 +126,15 @@ const TaskEntry = () => {
             variant="default"
           />
           <StatCard
-            title={t('task.weekly')}
-            value={weekTasks}
-            icon={<TrendingUp className="w-6 h-6 text-primary" />}
+            title={t('dashboard.supervisors')}
+            value={totalSupervisors}
+            icon={<Users className="w-6 h-6 text-primary" />}
             variant="default"
           />
           <StatCard
-            title={t('task.monthly')}
-            value={monthTasks}
-            icon={<CalendarDays className="w-6 h-6 text-primary" />}
+            title={t('dashboard.totalTasks')}
+            value={totalAllTasks}
+            icon={<TrendingUp className="w-6 h-6 text-primary" />}
             variant="primary"
           />
         </div>
@@ -113,12 +147,35 @@ const TaskEntry = () => {
               {t('task.entry')}
             </CardTitle>
             <CardDescription>
-              Record your completed tasks for a specific time period
+              {t('task.selectSupervisor') || 'Select a supervisor and record their completed tasks'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Supervisor Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="supervisor" className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  {t('task.supervisor') || 'Supervisor'}
+                </Label>
+                <Select value={selectedSupervisor} onValueChange={setSelectedSupervisor}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder={t('task.selectSupervisorPlaceholder') || 'Select a supervisor...'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {supervisors.map((supervisor) => (
+                      <SelectItem key={supervisor.id} value={supervisor.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{supervisor.name}</span>
+                          <span className="text-xs text-muted-foreground">{supervisor.email}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {/* Date */}
                 <div className="space-y-2">
                   <Label htmlFor="date" className="flex items-center gap-2">
@@ -146,7 +203,6 @@ const TaskEntry = () => {
                     value={timeFrom}
                     onChange={(e) => setTimeFrom(e.target.value)}
                     className="h-12"
-                    required
                   />
                 </div>
 
@@ -162,7 +218,6 @@ const TaskEntry = () => {
                     value={timeTo}
                     onChange={(e) => setTimeTo(e.target.value)}
                     className="h-12"
-                    required
                   />
                 </div>
 
@@ -183,6 +238,23 @@ const TaskEntry = () => {
                     required
                   />
                 </div>
+
+                {/* Task Points */}
+                <div className="space-y-2">
+                  <Label htmlFor="taskPoint" className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                    {t('task.points') || 'Points'}
+                  </Label>
+                  <Input
+                    id="taskPoint"
+                    type="number"
+                    min="0"
+                    value={taskPoint}
+                    onChange={(e) => setTaskPoint(e.target.value)}
+                    placeholder="0"
+                    className="h-12"
+                  />
+                </div>
               </div>
 
               {/* Description */}
@@ -192,16 +264,18 @@ const TaskEntry = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the tasks completed..."
+                  placeholder={t('task.descriptionPlaceholder') || 'Describe the tasks completed...'}
                   className="min-h-[100px] resize-none"
                 />
               </div>
 
               {/* Submit Button */}
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full md:w-auto h-12 px-8 gradient-primary text-primary-foreground font-semibold"
+                disabled={submitting}
               >
+                {submitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {t('task.submit')}
               </Button>
             </form>
@@ -209,15 +283,15 @@ const TaskEntry = () => {
         </Card>
 
         {/* Recent Tasks */}
-        {supervisorTasks.length > 0 && (
+        {recentTasks.length > 0 && (
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Recent Entries</CardTitle>
+              <CardTitle>{t('task.recentEntries') || 'Recent Entries'}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {supervisorTasks.slice(-5).reverse().map((task) => (
-                  <div 
+                {recentTasks.map((task) => (
+                  <div
                     key={task.id}
                     className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
                   >
@@ -226,15 +300,18 @@ const TaskEntry = () => {
                         <CheckCircle className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{task.description || 'Task Entry'}</p>
+                        <p className="font-medium">{task.supervisorName}</p>
                         <p className="text-sm text-muted-foreground">
-                          {task.date} • {task.timeFrom} - {task.timeTo}
+                          {task.date} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
                         </p>
+                        {task.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+                        )}
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-primary">{task.taskCount}</p>
-                      <p className="text-xs text-muted-foreground">tasks</p>
+                      <p className="text-xs text-muted-foreground">{t('dashboard.tasks') || 'tasks'}</p>
                     </div>
                   </div>
                 ))}

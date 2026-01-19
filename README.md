@@ -1,73 +1,51 @@
-# Welcome to your Lovable project
+# 📊 Supervisor Task & Performance Tracking System
 
-## Project info
+A centralized platform built with **React** and **Appwrite** designed for supervisors to log hourly activities and for administrators to monitor productivity through real-time analytics.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## 🚀 Project Overview
+The goal of this project is to bridge the gap between daily operations and performance evaluations. Supervisors use a mobile-responsive interface to log tasks, while Admins access a data-driven dashboard to rank performance and export reports.
 
-There are several ways of editing your application.
+## 🛠 Tech Stack
+* **Frontend:** React.js (Vite)
+* **Backend:** Appwrite (Authentication, Databases, and User Prefs)
+* **Styling:** Tailwind CSS
+* **Icons:** Lucide React
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 👥 User Roles & Access
 
-Changes made via Lovable will be committed automatically to this repo.
+| Role           | Permissions                                                           |
+| :------------- | :-------------------------------------------------------------------- |
+| **Supervisor** | Log hourly tasks, view personal task history, and manage profile.     |
+| **Admin**      | Access Performance Dashboard, view/filter all data, and manage users. |
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📋 Functional Requirements
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 1. Supervisor Module (Data Entry)
+* **Hourly Task Form:** * Date Picker (defaulted to current date).
+    * Time Range ("From" and "To" pickers).
+    * Task Description & Category.
+* **Submission History:** Personal log to track daily activity.
 
-Follow these steps:
+### 2. Admin Module (Dashboard & Analytics)
+* **Performance Ranking:** A "Leaderboard" ranking supervisors by task quantity.
+* **Metrics:** Daily, Weekly, and Monthly task totals.
+* **Filtering:** Filter by Date Range, Supervisor Name, or Department.
+* **Export:** Generate CSV/PDF reports for evaluations.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 3. Evaluation Logic
+* **Ranking Algorithm:** $$Rank = \sum(\text{Task Count})$$ within the filtered timeframe.
+* **Visual Tracking:** Progress bars comparing actual work against "Daily Goals."
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## ⚙️ Setup & Installation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/ahmedatif99/supervisor-insight](https://github.com/ahmedatif99/supervisor-insight)

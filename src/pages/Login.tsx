@@ -13,18 +13,21 @@ import { toast } from 'sonner';
 
 const Login = () => {
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { login, signup } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('login');
 
   const handleLogin = async (role: 'admin' | 'supervisor') => {
     if (!email) {
       toast.error('Please enter your email');
       return;
     }
-    
+
     setLoading(true);
     try {
       const success = await login(email, password, role);
@@ -34,6 +37,36 @@ const Login = () => {
       }
     } catch (error) {
       toast.error('Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignup = async () => {
+    if (!email) {
+      toast.error('Please enter your email');
+      return;
+    }
+    if (!name) {
+      toast.error('Please enter your name');
+      return;
+    }
+    if (!password) {
+      toast.error('Please enter your password');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const success = await signup(email, name, password, role);
+      if (success) {
+        toast.success('Signup successful!');
+        // await createUser(success)
+        navigate(role === 'admin' ? '/dashboard' : '/task-entry');
+      }
+      console.log(success)
+    } catch (error) {
+      toast.error('Signup failed');
     } finally {
       setLoading(false);
     }
@@ -52,12 +85,12 @@ const Login = () => {
             <LanguageToggle />
           </div>
         </div>
-        
+
         <div className="space-y-8 max-w-lg">
           <h1 className="text-4xl lg:text-5xl font-bold leading-tight">
             {t('app.subtitle')}
           </h1>
-          
+
           <div className="space-y-4">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-white/20">
@@ -68,7 +101,7 @@ const Login = () => {
                 <p className="text-sm opacity-80">Monitor hourly task progress</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 p-4 rounded-xl bg-white/10 backdrop-blur-sm">
               <div className="p-2 rounded-lg bg-white/20">
                 <Shield className="w-6 h-6" />
@@ -80,85 +113,184 @@ const Login = () => {
             </div>
           </div>
         </div>
-        
+
         <p className="text-sm opacity-60">
           © 2024 Task Tracker. All rights reserved.
         </p>
       </div>
-      
+
+      <div>
+
+      </div>
+
       {/* Right Panel - Login Form */}
       <div className="lg:flex-1 flex items-center justify-center p-8 bg-background">
-        <Card className="w-full max-w-md glass-card animate-scale-in">
-          <CardHeader className="text-center space-y-2">
-            <CardTitle className="text-2xl font-bold">{t('auth.welcome')}</CardTitle>
-            <CardDescription>{t('auth.signin')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="h-12"
-                  />
+        {
+          status === "login" ? (
+            <Card className="w-full max-w-md glass-card animate-scale-in">
+              <CardHeader className="text-center space-y-2">
+                <CardTitle className="text-2xl font-bold">{t('auth.welcome')}</CardTitle>
+                <CardDescription>{t('auth.signin')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="name@company.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{t('auth.password')}</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground text-center">
+                      {t('auth.selectRole')}
+                    </p>
+                    <Tabs defaultValue="supervisor" className="w-full">
+                      {/* <TabsList className="grid w-full grid-cols-2 h-12">
+                        <TabsTrigger value="supervisor" className="gap-2">
+                          <Users className="w-4 h-4" />
+                          {t('auth.supervisor')}
+                        </TabsTrigger>
+                        <TabsTrigger value="admin" className="gap-2">
+                          <Shield className="w-4 h-4" />
+                          {t('auth.admin')}
+                        </TabsTrigger>
+                      </TabsList> */}
+                      <TabsContent value="supervisor" className="mt-4">
+                        <Button
+                          className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
+                          onClick={() => handleLogin('supervisor')}
+                          disabled={loading}
+                        >
+                          {loading ? 'Logging in...' : t('auth.login')}
+                        </Button>
+                      </TabsContent>
+                      <TabsContent value="admin" className="mt-4">
+                        <Button
+                          className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
+                          onClick={() => handleLogin('admin')}
+                          disabled={loading}
+                        >
+                          {loading ? 'Logging in...' : t('auth.login')}
+                        </Button>
+                      </TabsContent>
+                    </Tabs>
+                    <p className="text-sm opacity-60">
+                      Don't have an account <button onClick={() => setStatus("signup")}>Sign up now</button>
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t('auth.password')}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12"
-                  />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="w-full max-w-md glass-card animate-scale-in">
+              <CardHeader className="text-center space-y-2">
+                <CardTitle className="text-2xl font-bold">{t('auth.welcome')}</CardTitle>
+                <CardDescription>{t('auth.signin')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="name@company.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">{t('auth.name')}</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="Ahmed Atif ..."
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{t('auth.password')}</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground text-center">
+                      {t('auth.selectRole')}
+                    </p>
+                    <Tabs defaultValue="supervisor" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 h-12">
+                        <TabsTrigger value="supervisor" className="gap-2" onClick={() => setRole('supervisor')} >
+                          <Users className="w-4 h-4" />
+                          {t('auth.supervisor')}
+                        </TabsTrigger>
+                        <TabsTrigger value="admin" className="gap-2" onClick={() => setRole('admin')}>
+                          <Shield className="w-4 h-4" />
+                          {t('auth.admin')}
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="supervisor" className="mt-4">
+                        <Button
+                          className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
+                          onClick={() => handleSignup()}
+                          disabled={loading}
+                        >
+                          {loading ? 'Signing up ...' : t('auth.login')}
+                        </Button>
+                      </TabsContent>
+                      <TabsContent value="admin" className="mt-4">
+                        <Button
+                          className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
+                          onClick={() => handleSignup()}
+                          disabled={loading}
+                        >
+                          {loading ? 'Signing up...' : t('auth.login')}
+                        </Button>
+                      </TabsContent>
+                    </Tabs>
+                    <p className="text-sm opacity-60">
+                      have an account <button onClick={() => setStatus("login")}>Login now</button>
+                    </p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground text-center">
-                  {t('auth.selectRole')}
-                </p>
-                <Tabs defaultValue="supervisor" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 h-12">
-                    <TabsTrigger value="supervisor" className="gap-2">
-                      <Users className="w-4 h-4" />
-                      {t('auth.supervisor')}
-                    </TabsTrigger>
-                    <TabsTrigger value="admin" className="gap-2">
-                      <Shield className="w-4 h-4" />
-                      {t('auth.admin')}
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="supervisor" className="mt-4">
-                    <Button 
-                      className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
-                      onClick={() => handleLogin('supervisor')}
-                      disabled={loading}
-                    >
-                      {loading ? 'Logging in...' : t('auth.login')}
-                    </Button>
-                  </TabsContent>
-                  <TabsContent value="admin" className="mt-4">
-                    <Button 
-                      className="w-full h-12 gradient-primary text-primary-foreground font-semibold"
-                      onClick={() => handleLogin('admin')}
-                      disabled={loading}
-                    >
-                      {loading ? 'Logging in...' : t('auth.login')}
-                    </Button>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          )
+        }
+
+
       </div>
+
     </div>
   );
 };

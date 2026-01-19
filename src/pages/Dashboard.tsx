@@ -1,40 +1,90 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTasks, SupervisorStats } from '@/contexts/TaskContext';
+import { useTasks, SupervisorStats, Supervisor } from '@/contexts/TaskContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/Layout';
 import { StatCard } from '@/components/StatCard';
 import { RankBadge } from '@/components/RankBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BarChart3, 
-  Users, 
-  TrendingUp, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  BarChart3,
+  Users,
+  TrendingUp,
   Award,
   Calendar,
-  Filter
+  Filter,
+  ChevronRight,
+  ChevronLeft,
+  Pencil,
+  Trash2,
+  Plus,
+  Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 type FilterPeriod = 'daily' | 'weekly' | 'monthly' | 'all';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
-  const { getSupervisorStats, getTasksByPeriod } = useTasks();
+  const { isAdmin } = useAuth();
+  const {
+    getSupervisorStats,
+    getTasksByPeriod,
+    supervisors,
+    addSupervisor,
+    updateSupervisor,
+    deleteSupervisor,
+    loading
+  } = useTasks();
   const [filter, setFilter] = useState<FilterPeriod>('weekly');
+
+  // Dialog states
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | null>(null);
+  const [deletingSupervisorId, setDeletingSupervisorId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form states
+  const [formName, setFormName] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formRole, setFormRole] = useState('supervisor');
 
   const stats = getSupervisorStats(filter);
   const tasks = getTasksByPeriod(filter);
-  
+
   const totalTasks = tasks.reduce((sum, t) => sum + t.taskCount, 0);
   const avgDaily = stats.length > 0 ? Math.round(totalTasks / stats.length) : 0;
   const topPerformer = stats[0];
@@ -51,6 +101,107 @@ const Dashboard = () => {
     return (stat.totalTasks / maxTasks) * 100;
   };
 
+  const resetForm = () => {
+    setFormName('');
+    setFormEmail('');
+    setFormRole('supervisor');
+  };
+
+  const openEditDialog = (supervisor: Supervisor) => {
+    setEditingSupervisor(supervisor);
+    setFormName(supervisor.name);
+    setFormEmail(supervisor.email);
+    setFormRole(supervisor.role);
+  };
+
+  const handleAddSupervisor = async () => {
+    if (!formName || !formEmail) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const newSupervisor = await addSupervisor({
+        name: formName,
+        email: formEmail,
+        role: formRole,
+        totalPoints: 0,
+        totalTask: 0,
+        rank: 0,
+      });
+
+      if (newSupervisor) {
+        toast.success(t('supervisor.addSuccess') || 'Supervisor added successfully');
+        setIsAddDialogOpen(false);
+        resetForm();
+      } else {
+        toast.error('Failed to add supervisor');
+      }
+    } catch (error) {
+      toast.error('Error adding supervisor');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateSupervisor = async () => {
+    if (!editingSupervisor || !formName || !formEmail) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const updated = await updateSupervisor(editingSupervisor.id, {
+        name: formName,
+        email: formEmail,
+        role: formRole,
+      });
+
+      if (updated) {
+        toast.success(t('supervisor.updateSuccess') || 'Supervisor updated successfully');
+        setEditingSupervisor(null);
+        resetForm();
+      } else {
+        toast.error('Failed to update supervisor');
+      }
+    } catch (error) {
+      toast.error('Error updating supervisor');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteSupervisor = async () => {
+    if (!deletingSupervisorId) return;
+
+    setIsSubmitting(true);
+    try {
+      const success = await deleteSupervisor(deletingSupervisorId);
+      if (success) {
+        toast.success(t('supervisor.deleteSuccess') || 'Supervisor deleted successfully');
+      } else {
+        toast.error('Failed to delete supervisor');
+      }
+    } catch (error) {
+      toast.error('Error deleting supervisor');
+    } finally {
+      setIsSubmitting(false);
+      setDeletingSupervisorId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-8 animate-fade-in">
@@ -59,28 +210,38 @@ const Dashboard = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground">{t('dashboard.title')}</h1>
             <p className="text-muted-foreground mt-1">
-              Monitor supervisor performance and task completion
+              {t('Monitor.supervisor')}
             </p>
           </div>
-          
-          {/* Filter */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-            <div className="flex gap-1 p-1 bg-muted rounded-lg">
-              {filterOptions.map((option) => (
-                <Button
-                  key={option.value}
-                  variant={filter === option.value ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setFilter(option.value)}
-                  className={cn(
-                    "transition-all",
-                    filter === option.value && "shadow-md"
-                  )}
-                >
-                  {option.label}
-                </Button>
-              ))}
+
+          <div className="flex items-center gap-4">
+            {/* Add Supervisor Button */}
+            {isAdmin && (
+              <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                {t('supervisor.add') || 'Add Supervisor'}
+              </Button>
+            )}
+
+            {/* Filter */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <div className="flex gap-1 p-1 bg-muted rounded-lg">
+                {filterOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    variant={filter === option.value ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setFilter(option.value)}
+                    className={cn(
+                      "transition-all",
+                      filter === option.value && "shadow-md"
+                    )}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -126,45 +287,82 @@ const Dashboard = () => {
                   <TableHead>{t('dashboard.name')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
                   <TableHead className="hidden md:table-cell">{t('dashboard.performance')}</TableHead>
+                  {isAdmin && <TableHead className="w-24">{t('actions') || 'Actions'}</TableHead>}
+                  <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {stats.map((stat, index) => (
-                  <TableRow 
-                    key={stat.id}
-                    className="hover:bg-muted/50 transition-colors animate-slide-up"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <TableCell>
-                      <RankBadge rank={index + 1} />
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{stat.name}</p>
-                        <p className="text-sm text-muted-foreground">{stat.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className="text-2xl font-bold text-primary">
-                        {stat.totalTasks}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center gap-3">
-                        <Progress 
-                          value={getProgressValue(stat)} 
-                          className="h-2 flex-1"
-                        />
-                        <span className="text-sm text-muted-foreground w-12">
-                          {Math.round(getProgressValue(stat))}%
+                {stats.map((stat, index) => {
+                  const supervisor = supervisors.find(s => s.id === stat.id);
+                  return (
+                    <TableRow
+                      key={stat.id}
+                      className="hover:bg-muted/50 transition-colors animate-slide-up cursor-pointer group"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                      onClick={() => navigate(`/supervisor/${stat.id}`)}
+                    >
+                      <TableCell>
+                        <RankBadge rank={index + 1} />
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium group-hover:text-primary transition-colors">{stat.name}</p>
+                          <p className="text-sm text-muted-foreground">{stat.email}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-2xl font-bold text-primary">
+                          {stat.totalTasks}
                         </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <div className="flex items-center gap-3">
+                          <Progress
+                            value={getProgressValue(stat)}
+                            className="h-2 flex-1"
+                          />
+                          <span className="text-sm text-muted-foreground w-12">
+                            {Math.round(getProgressValue(stat))}%
+                          </span>
+                        </div>
+                      </TableCell>
+                      {isAdmin && (
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => supervisor && openEditDialog(supervisor)}
+                              className="h-8 w-8"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeletingSupervisorId(stat.id)}
+                              className="h-8 w-8 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          {isRTL ? (
+                            <ChevronLeft className="w-5 h-5 text-primary" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-primary" />
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
                 {stats.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={isAdmin ? 6 : 5} className="text-center py-8 text-muted-foreground">
                       No data available for this period
                     </TableCell>
                   </TableRow>
@@ -179,13 +377,13 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
-              Recent Activity
+              {t('recent.activity') || 'Recent Activity'}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {tasks.slice(0, 5).map((task, index) => (
-                <div 
+                <div
                   key={task.id}
                   className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all animate-slide-up"
                   style={{ animationDelay: `${index * 100}ms` }}
@@ -198,13 +396,13 @@ const Dashboard = () => {
                     <div>
                       <p className="font-medium">{task.supervisorName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {task.date} • {task.timeFrom} - {task.timeTo}
+                        {task.date} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-bold text-primary">{task.taskCount}</p>
-                    <p className="text-xs text-muted-foreground">tasks</p>
+                    <p className="text-xs text-muted-foreground">{t('tasks') || 'tasks'}</p>
                   </div>
                 </div>
               ))}
@@ -217,6 +415,111 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add Supervisor Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('supervisor.add') || 'Add Supervisor'}</DialogTitle>
+            <DialogDescription>
+              {t('Addanew') || 'Add a new supervisor to the system'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="addName">{t('supervisor.name') || 'Name'}</Label>
+              <Input
+                id="addName"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                placeholder={t("Ename")}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="addEmail">{t('supervisor.email') || 'Email'}</Label>
+              <Input
+                id="addEmail"
+                type="email"
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+                placeholder={t("Emname")}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
+              {t('cancel') || 'Cancel'}
+            </Button>
+            <Button onClick={handleAddSupervisor} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {t('add') || 'Add'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Supervisor Dialog */}
+      <Dialog open={!!editingSupervisor} onOpenChange={() => { setEditingSupervisor(null); resetForm(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('supervisor.edit') || 'Edit Supervisor'}</DialogTitle>
+            <DialogDescription>
+              {t('supervisor.editDescription') || 'Update supervisor details'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editName">{t('supervisor.name') || 'Name'}</Label>
+              <Input
+                id="editName"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editEmail">{t('supervisor.email') || 'Email'}</Label>
+              <Input
+                id="editEmail"
+                type="email"
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setEditingSupervisor(null); resetForm(); }}>
+              {t('cancel') || 'Cancel'}
+            </Button>
+            <Button onClick={handleUpdateSupervisor} disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {t('save') || 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingSupervisorId} onOpenChange={() => setDeletingSupervisorId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('supervisor.deleteConfirmTitle') || 'Delete Supervisor'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('supervisor.deleteConfirmDescription') || 'Are you sure you want to delete this supervisor? This will also remove all their tasks. This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteSupervisor}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isSubmitting}
+            >
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {t('delete') || 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 };
