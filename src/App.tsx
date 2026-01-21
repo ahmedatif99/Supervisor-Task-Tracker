@@ -17,15 +17,21 @@ import SupervisorDetail from "./pages/SupervisorDetail";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
 
+
   // If admin-only route and user is not admin, redirect to supervisor stats
-  if (adminOnly && user?.isAdmin) {
+  if (adminOnly && !isAdmin) {
     return <Navigate to="/my-stats" replace />;
   }
 

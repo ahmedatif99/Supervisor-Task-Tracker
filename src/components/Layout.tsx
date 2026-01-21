@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { LanguageToggle } from './LanguageToggle';
@@ -21,6 +21,7 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   const { t, isRTL } = useLanguage();
+  const navigat = useNavigate()
   const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -122,7 +123,10 @@ export const Layout = ({ children }: LayoutProps) => {
             <Button
               variant="ghost"
               className="w-full justify-start gap-3 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
-              onClick={logout}
+              onClick={() => {
+                logout();
+                navigat("/")
+              }}
             >
               <LogOut className="h-5 w-5" />
               {t('nav.logout')}

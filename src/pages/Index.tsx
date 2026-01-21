@@ -4,14 +4,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import Login from './Login';
 
 const Index = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(isAdmin ? '/dashboard' : '/task-entry');
+    if (!loading && isAuthenticated) {
+      navigate(isAdmin ? '/dashboard' : '/my-stats');
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [isAuthenticated, isAdmin, loading, navigate]);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return <Login />;
 };

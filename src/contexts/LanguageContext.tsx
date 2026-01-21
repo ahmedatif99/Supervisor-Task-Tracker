@@ -19,6 +19,11 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.myStats': 'My Statistics',
     'nav.logout': 'Logout',
     'nav.login': 'Login',
+    "nav.supervisorTracking": "Supervisor Tracking",
+    "nav.monitorHourlyTask": "Monitor hourly task progress",
+    "nav.performanceEv": "Performance Evaluation",
+    "nav.dataDriven": "Data-driven insights & rankings",
+    "nav.allRight": " © 2026 Task Tracker. All rights reserved.",
 
     // Auth
     'auth.welcome': 'Welcome Back',
@@ -29,6 +34,9 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.supervisor': 'Supervisor',
     'auth.admin': 'Admin',
     'auth.selectRole': 'Select your role',
+    "auth.signupnow": 'Sign up now',
+    "auth.dontHaveAccount": "Don't have an account",
+
 
     "supervisor.name": "Supervisor Name",
     "supervisor.email": "Supervisor Email",
@@ -115,6 +123,11 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.myStats': 'إحصائياتي',
     'nav.logout': 'تسجيل الخروج',
     'nav.login': 'تسجيل الدخول',
+    "nav.supervisorTracking": "متابعة المشرف",
+    "nav.monitorHourlyTask": "مراقبة تقدم المهام كل ساعة",
+    "nav.performanceEv": "تقييم الأداء",
+    "nav.dataDriven": "رؤى وتصنيفات مبنية على البيانات",
+    "nav.allRight": "© ٢٠٢٦ Task Tracker. جميع الحقوق محفوظة.",
 
     // Auth
     'auth.welcome': 'مرحباً بعودتك',
@@ -125,6 +138,8 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.supervisor': 'مشرف',
     'auth.admin': 'مدير',
     'auth.selectRole': 'اختر دورك',
+    "auth.signupnow": 'سجل الآن',
+    "auth.dontHaveAccount": "لا تمتلك حساب ؟",
 
     "supervisor.name": "اسم المشرف",
     "supervisor.email": "البريد الإلكتروني للمشرف",

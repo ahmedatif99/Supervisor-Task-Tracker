@@ -1,4 +1,5 @@
-import { account, databases, ID } from '../lib/appwrite';
+import { account, databases, ID, DATABASE_ID, SUPERVISORS_COLLECTION_ID, Query } from '../lib/appwrite';
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 
@@ -8,15 +9,17 @@ interface User {
   name: string;
   email: string;
   role: string;
+  prefs?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, role: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,31 +33,58 @@ const demoUsers: Record<string, User> = {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  console.log(user)
+  // const [user, setUser] = useState<User | null>(() => {
 
-    const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
-  });
+  //   const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+  //   return stored ? JSON.parse(stored) : null;
+  // });
+
+  // Check for existing session on mount
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
+    // if (user) {
+    //   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+    // } else {
+    //   localStorage.removeItem(AUTH_STORAGE_KEY);
+    // }
+    checkSession();
+  }, []);
+
+  const checkSession = async () => {
+    try {
+      const appwriteUser = await account.get();
+      const role = appwriteUser.prefs?.role || 'supervisor';
+      setUser({
+        id: appwriteUser.$id,
+        name: appwriteUser.name,
+        email: appwriteUser.email,
+        role: role,
+      });
+    } catch (error) {
+      // No active session
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
+  };
 
 
-  const login = async (email: string, password: string, name: string, role: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       await account.createEmailPasswordSession(email, password);
-      const loUser = await account.get();
+      const appwriteUser = await account.get();
+      const role = appwriteUser.prefs?.role || 'supervisor';
       setUser({
-        id: loUser.$id,
-        name,
-        email,
-        role: loUser.prefs.role,
+        id: appwriteUser.$id,
+        name: appwriteUser.name,
+        email: appwriteUser.email,
+        role: role,
       });
+
+      return true;
     } catch (error) {
       console.error("Login failed", error);
       return false;
@@ -63,15 +93,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return true;
   };
-  const signup = async (email: string, name: string, password: string, role: string): Promise<boolean> => {
+  const signup = async (email: string, password: string, name: string, role: string): Promise<boolean> => {
     try {
 
       const newUser = await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
+      await account.updatePrefs({ role: role });
 
       const doc = await databases.createDocument(
-        '696b5c4900133d923bc6',
-        'supervisors',
+        DATABASE_ID,
+        SUPERVISORS_COLLECTION_ID,
         ID.unique(),
         {
           $id: newUser.$id,
@@ -84,7 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           $createdAt: new Date().toISOString(),
         }
       );
-      await account.updatePrefs({ role: role })
 
       setUser({
         id: newUser.$id,
@@ -99,9 +129,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
   }
-  const logout = async () => {
-    await account.deleteSession('current');
-    setUser(null);
+  const logout = async (): Promise<void> => {
+    try {
+      await account.deleteSession('current');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
@@ -113,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
+        loading
       }}
     >
       {children}

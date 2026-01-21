@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 const Login = () => {
   const { t } = useLanguage();
-  const { login, signup } = useAuth();
+  const { login, signup, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,14 +26,19 @@ const Login = () => {
     if (!email) {
       toast.error('Please enter your email');
       return;
+    } else if (!password) {
+      toast.error('Please enter your email');
+      return;
     }
 
     setLoading(true);
     try {
-      const success = await login(email, password, role);
+      const success = await login(email, password);
       if (success) {
         toast.success('Login successful!');
-        navigate(role === 'admin' ? '/dashboard' : '/task-entry');
+        navigate(user?.role === 'admin' ? "/my-stats" : '/dashboard');
+      } else {
+        toast.error('Invalid email or password');
       }
     } catch (error) {
       toast.error('Login failed');
@@ -97,8 +102,8 @@ const Login = () => {
                 <Users className="w-6 h-6" />
               </div>
               <div>
-                <p className="font-semibold">Supervisor Tracking</p>
-                <p className="text-sm opacity-80">Monitor hourly task progress</p>
+                <p className="font-semibold">{t('nav.supervisorTracking')}</p>
+                <p className="text-sm opacity-80">{t('nav.monitorHourlyTask')}</p>
               </div>
             </div>
 
@@ -107,15 +112,15 @@ const Login = () => {
                 <Shield className="w-6 h-6" />
               </div>
               <div>
-                <p className="font-semibold">Performance Evaluation</p>
-                <p className="text-sm opacity-80">Data-driven insights & rankings</p>
+                <p className="font-semibold">{t("nav.performanceEv")}</p>
+                <p className="text-sm opacity-80">{t("nav.dataDriven")}</p>
               </div>
             </div>
           </div>
         </div>
 
         <p className="text-sm opacity-60">
-          © 2024 Task Tracker. All rights reserved.
+          {t("nav.allRight")}
         </p>
       </div>
 
@@ -194,7 +199,7 @@ const Login = () => {
                       </TabsContent>
                     </Tabs>
                     <p className="text-sm opacity-60">
-                      Don't have an account <button onClick={() => setStatus("signup")}>Sign up now</button>
+                      {t('auth.dontHaveAccount')} <button onClick={() => setStatus("signup")}>{t('auth.signupnow')}</button>
                     </p>
                   </div>
                 </div>

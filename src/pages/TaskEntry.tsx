@@ -40,7 +40,7 @@ const TaskEntry = () => {
   }
 
   const todayTasks = tasks
-    .filter(t => t.date === new Date().toISOString().split('T')[0])
+    .filter(t => t.date.toString().split('T')[0] === new Date().toISOString().split('T')[0])
     .reduce((sum, t) => sum + t.taskCount, 0);
 
   const totalSupervisors = supervisors.length;
