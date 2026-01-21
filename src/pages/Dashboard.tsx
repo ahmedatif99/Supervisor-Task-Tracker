@@ -10,6 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { format } from 'date-fns';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -50,12 +57,14 @@ import {
   Pencil,
   Trash2,
   Plus,
-  Loader2
+  Loader2,
+  CalendarIcon,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-type FilterPeriod = 'daily' | 'weekly' | 'monthly' | 'all';
+type FilterPeriod = 'daily' | 'weekly' | 'monthly' | 'all' | 'specific';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -65,12 +74,14 @@ const Dashboard = () => {
     getSupervisorStats,
     getTasksByPeriod,
     supervisors,
+    tasks: allTasks,
     addSupervisor,
     updateSupervisor,
     deleteSupervisor,
     loading
   } = useTasks();
   const [filter, setFilter] = useState<FilterPeriod>('weekly');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -83,8 +94,51 @@ const Dashboard = () => {
   const [formEmail, setFormEmail] = useState('');
   const [formRole, setFormRole] = useState('supervisor');
 
-  const stats = getSupervisorStats(filter);
-  const tasks = getTasksByPeriod(filter);
+  // Get tasks based on filter type
+  const getFilteredTasks = () => {
+    if (filter === 'specific' && selectedDate) {
+      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+      return allTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+    }
+    return getTasksByPeriod(filter === 'specific' ? 'all' : filter);
+  };
+
+  // Get stats based on filter type
+  const getFilteredStats = () => {
+    if (filter === 'specific' && selectedDate) {
+      const dateStr = format(selectedDate, 'yyyy-MM-dd');
+      const dayTasks = allTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+
+      const statsMap = new Map<string, SupervisorStats>();
+      supervisors.forEach((sup) => {
+        statsMap.set(sup.id, {
+          id: sup.id,
+          name: sup.name,
+          email: sup.email,
+          totalTasks: 0,
+          dailyTasks: 0,
+          weeklyTasks: 0,
+          monthlyTasks: 0,
+        });
+      });
+
+      dayTasks.forEach((task) => {
+        const existing = statsMap.get(task.supervisorId);
+        if (existing) {
+          existing.totalTasks += task.taskCount;
+        }
+      });
+
+      return Array.from(statsMap.values()).sort((a, b) => b.totalTasks - a.totalTasks);
+    }
+    return getSupervisorStats(filter === 'specific' ? 'all' : filter);
+  };
+
+  const stats = getFilteredStats();
+  const tasks = getFilteredTasks();
+
+  // const stats = getSupervisorStats(filter);
+  // const tasks = getTasksByPeriod(filter);
 
   const totalTasks = tasks.reduce((sum, t) => sum + t.taskCount, 0);
   const avgDaily = stats.length > 0 ? Math.round(totalTasks / stats.length) : 0;
@@ -96,6 +150,18 @@ const Dashboard = () => {
     { value: 'monthly', label: t('dashboard.monthly') },
     { value: 'all', label: t('dashboard.all') },
   ];
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if (date) {
+      setFilter('specific');
+    }
+  };
+
+  const clearDateFilter = () => {
+    setSelectedDate(undefined);
+    setFilter('weekly');
+  };
 
   const getProgressValue = (stat: SupervisorStats) => {
     const maxTasks = stats[0]?.totalTasks || 1;
@@ -225,24 +291,65 @@ const Dashboard = () => {
             )}
 
             {/* Filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Filter className="w-4 h-4 text-muted-foreground" />
               <div className="flex gap-1 p-1 bg-muted rounded-lg">
                 {filterOptions.map((option) => (
                   <Button
                     key={option.value}
-                    variant={filter === option.value ? 'default' : 'ghost'}
+                    variant={filter === option.value && !selectedDate ? 'default' : 'ghost'}
                     size="sm"
-                    onClick={() => setFilter(option.value)}
+                    onClick={() => {
+                      setFilter(option.value);
+                      setSelectedDate(undefined);
+                    }}
                     className={cn(
                       "transition-all",
-                      filter === option.value && "shadow-md"
+                      filter === option.value && !selectedDate && "shadow-md"
                     )}
                   >
                     {option.label}
                   </Button>
                 ))}
               </div>
+
+              {/* Date Picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={selectedDate ? 'default' : 'outline'}
+                    size="sm"
+                    className={cn(
+                      "gap-2",
+                      selectedDate && "shadow-md"
+                    )}
+                  >
+                    <CalendarIcon className="w-4 h-4" />
+                    {selectedDate ? format(selectedDate, 'PPP') : (t('selectDate') || 'Pick a date')}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-popover z-50" align="end">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {/* Clear date filter */}
+              {selectedDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearDateFilter}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -397,7 +504,7 @@ const Dashboard = () => {
                     <div>
                       <p className="font-medium">{task.supervisorName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {task.date} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
+                        {task.date.toString().split('T')[0]} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
                       </p>
                     </div>
                   </div>
