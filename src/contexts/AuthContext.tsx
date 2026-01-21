@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email,
           name,
           role,
-          points: 0,
+          total_points: 0,
           total_task: 0,
           rank: 0,
           $createdAt: new Date().toISOString(),
