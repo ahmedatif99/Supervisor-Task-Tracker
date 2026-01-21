@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
     Table,
     TableBody,
@@ -132,7 +133,7 @@ const SupervisorDetail = () => {
         return (
             <Layout>
                 <div className="flex items-center justify-center min-h-[50vh]">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <LoadingSpinner size="lg" />
                 </div>
             </Layout>
         );

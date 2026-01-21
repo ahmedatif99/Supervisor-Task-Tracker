@@ -12,6 +12,7 @@ import TaskEntry from "./pages/TaskEntry";
 import NotFound from "./pages/NotFound";
 import SupervisorStats from "./pages/SupervisorStats";
 import SupervisorDetail from "./pages/SupervisorDetail";
+import { PageLoader } from "@/components/LoadingSpinner";
 
 
 const queryClient = new QueryClient();
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children, adminOnly = false }: { children: React.React
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <PageLoader />;
   }
 
 

@@ -37,6 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
   BarChart3,
   Users,
@@ -196,7 +197,7 @@ const Dashboard = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <LoadingSpinner size="lg" />
         </div>
       </Layout>
     );

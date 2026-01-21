@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Login from './Login';
 
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+
 const Index = () => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
@@ -14,7 +16,7 @@ const Index = () => {
   }, [isAuthenticated, isAdmin, loading, navigate]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner /></div>;
   }
 
   return <Login />;

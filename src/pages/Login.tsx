@@ -270,7 +270,7 @@ const Login = () => {
                           onClick={() => handleSignup()}
                           disabled={loading}
                         >
-                          {loading ? 'Signing up ...' : t('auth.login')}
+                          {loading ? 'Signing up ...' : t('auth.signup')}
                         </Button>
                       </TabsContent>
                       <TabsContent value="admin" className="mt-4">
@@ -279,7 +279,7 @@ const Login = () => {
                           onClick={() => handleSignup()}
                           disabled={loading}
                         >
-                          {loading ? 'Signing up...' : t('auth.login')}
+                          {loading ? 'Signing up...' : t('auth.signup')}
                         </Button>
                       </TabsContent>
                     </Tabs>

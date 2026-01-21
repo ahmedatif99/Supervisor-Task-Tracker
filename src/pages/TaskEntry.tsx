@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Calendar, Clock, FileText, CheckCircle, Users, TrendingUp, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 const TaskEntry = () => {
   const { t } = useLanguage();
@@ -100,7 +101,7 @@ const TaskEntry = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <LoadingSpinner size="lg" />
         </div>
       </Layout>
     );
