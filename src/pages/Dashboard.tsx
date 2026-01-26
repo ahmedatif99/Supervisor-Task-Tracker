@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { TASK_TYPES, TaskType } from '@/services/taskService';
 import {
   Popover,
   PopoverContent,
@@ -59,8 +60,15 @@ import {
   Plus,
   Loader2,
   CalendarIcon,
-  X
+  X, Tag
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -82,6 +90,7 @@ const Dashboard = () => {
   } = useTasks();
   const [filter, setFilter] = useState<FilterPeriod>('weekly');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTaskType, setSelectedTaskType] = useState<TaskType | 'all'>('all');
 
   // Dialog states
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -96,19 +105,39 @@ const Dashboard = () => {
 
   // Get tasks based on filter type
   const getFilteredTasks = () => {
+    let filteredTasks = allTasks;
+
     if (filter === 'specific' && selectedDate) {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      return allTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+      filteredTasks = filteredTasks.filter(task => task.date === dateStr);
+    } else {
+      filteredTasks = getTasksByPeriod(filter === 'specific' ? 'all' : filter);
     }
-    return getTasksByPeriod(filter === 'specific' ? 'all' : filter);
+
+    // Filter by task type
+    if (selectedTaskType !== 'all') {
+      filteredTasks = filteredTasks.filter(task => task.taskType === selectedTaskType);
+    }
+    return filteredTasks;
   };
 
   // Get stats based on filter type
   const getFilteredStats = () => {
-    if (filter === 'specific' && selectedDate) {
-      const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      const dayTasks = allTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+    if (filter === 'specific' && selectedDate || selectedTaskType !== 'all') {
+      // Custom filtering needed
+      let dayTasks = allTasks;
 
+      if (filter === 'specific' && selectedDate) {
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        dayTasks = dayTasks.filter(task => task.date === dateStr);
+      } else if (filter !== 'specific') {
+        dayTasks = getTasksByPeriod(filter);
+      }
+
+      // Filter by task type
+      if (selectedTaskType !== 'all') {
+        dayTasks = dayTasks.filter(task => task.taskType === selectedTaskType);
+      }
       const statsMap = new Map<string, SupervisorStats>();
       supervisors.forEach((sup) => {
         statsMap.set(sup.id, {
@@ -161,6 +190,10 @@ const Dashboard = () => {
   const clearDateFilter = () => {
     setSelectedDate(undefined);
     setFilter('weekly');
+  };
+
+  const clearTaskTypeFilter = () => {
+    setSelectedTaskType('all');
   };
 
   const getProgressValue = (stat: SupervisorStats) => {
@@ -350,6 +383,37 @@ const Dashboard = () => {
                   <X className="w-4 h-4" />
                 </Button>
               )}
+
+              {/* Task Type Filter */}
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4 text-muted-foreground" />
+                <Select
+                  value={selectedTaskType}
+                  onValueChange={(val) => setSelectedTaskType(val as TaskType | 'all')}
+                >
+                  <SelectTrigger className="w-[140px] h-9">
+                    <SelectValue placeholder="Task Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {TASK_TYPES.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedTaskType !== 'all' && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearTaskTypeFilter}
+                    className="h-8 w-8 p-0"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -393,6 +457,7 @@ const Dashboard = () => {
                 <TableRow>
                   <TableHead className="w-20">{t('dashboard.rank')}</TableHead>
                   <TableHead>{t('dashboard.name')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.totalPoints')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
                   <TableHead className="hidden md:table-cell">{t('dashboard.performance')}</TableHead>
                   {isAdmin && <TableHead className="w-24">{t('actions') || 'Actions'}</TableHead>}
@@ -417,6 +482,11 @@ const Dashboard = () => {
                           <p className="font-medium group-hover:text-primary transition-colors">{stat.name}</p>
                           <p className="text-sm text-muted-foreground">{stat.email}</p>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-2xl font-bold text-primary">
+                          {stat.monthlyTasks}
+                        </span>
                       </TableCell>
                       <TableCell className="text-center">
                         <span className="text-2xl font-bold text-primary">
@@ -504,7 +574,7 @@ const Dashboard = () => {
                     <div>
                       <p className="font-medium">{task.supervisorName}</p>
                       <p className="text-sm text-muted-foreground">
-                        {task.date.toString().split('T')[0]} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
+                        {task.date.toString().split('T')[0]}
                       </p>
                     </div>
                   </div>

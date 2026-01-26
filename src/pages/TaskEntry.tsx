@@ -17,9 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar, Clock, FileText, CheckCircle, Users, TrendingUp, Loader2 } from 'lucide-react';
+import { Calendar, FileText, CheckCircle, Users, TrendingUp, Loader2, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { TASK_TYPES, TASK_POINTS, TaskType } from '@/services/taskService';
+import { set } from 'date-fns';
+
 
 const TaskEntry = () => {
   const { t } = useLanguage();
@@ -27,10 +30,16 @@ const TaskEntry = () => {
   const { addTask, supervisors, tasks, loading } = useTasks();
 
   const [selectedSupervisor, setSelectedSupervisor] = useState('');
+  // const [selectTaskType, setSelectTaskType] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [timeFrom, setTimeFrom] = useState('');
-  const [timeTo, setTimeTo] = useState('');
+  // const [timeFrom, setTimeFrom] = useState('');
+  // const [timeTo, setTimeTo] = useState('');
+  const [taskType, setTaskType] = useState<TaskType>('Other');
+  // Auto-calculate points based on task type and count
+
+  // const [taskType, setTaskType] = useState('');
   const [taskCount, setTaskCount] = useState('');
+  const calculatedPoints = taskCount ? parseFloat(taskCount) * TASK_POINTS[taskType] : 0;
   const [taskPoint, setTaskPoint] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +59,7 @@ const TaskEntry = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedSupervisor || !taskCount) {
+    if (!selectedSupervisor || !taskCount || !taskType) {
       toast.error(t('task.fillRequired') || 'Please fill in all required fields');
       return;
     }
@@ -61,24 +70,23 @@ const TaskEntry = () => {
       return;
     }
 
+
     setSubmitting(true);
     try {
       const newTask = await addTask({
         supervisorId: supervisor.id,
         supervisorName: supervisor.name,
         date,
-        timeFrom: timeFrom || '',
-        timeTo: timeTo || '',
+        taskType,
         taskCount: parseInt(taskCount),
-        taskPoint: parseInt(taskPoint) || 0,
+        taskPoint: calculatedPoints,
         description,
       });
 
       if (newTask) {
         toast.success(t('task.success'));
         setSelectedSupervisor('');
-        setTimeFrom('');
-        setTimeTo('');
+        setTaskType('Other');
         setTaskCount('');
         setTaskPoint('');
         setDescription('');
@@ -135,7 +143,7 @@ const TaskEntry = () => {
           <StatCard
             title={t('dashboard.totalTasks')}
             value={totalAllTasks}
-            icon={<TrendingUp className="w-6 h-6 text-primary" />}
+            icon={<TrendingUp className="w-6 h-6 text-white" />}
             variant="primary"
           />
         </div>
@@ -192,35 +200,28 @@ const TaskEntry = () => {
                   />
                 </div>
 
-                {/* Time From */}
+                {/* Task Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="timeFrom" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    {t('task.timeFrom')}
+                  <Label htmlFor="taskType" className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-muted-foreground" />
+                    {t('task.type') || 'Task Type'}
                   </Label>
-                  <Input
-                    id="timeFrom"
-                    type="time"
-                    value={timeFrom}
-                    onChange={(e) => setTimeFrom(e.target.value)}
-                    className="h-12"
-                  />
+                  <Select value={taskType} onValueChange={(val) =>
+                    setTaskType(val as TaskType)
+                  }>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Select type..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TASK_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Time To */}
-                <div className="space-y-2">
-                  <Label htmlFor="timeTo" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                    {t('task.timeTo')}
-                  </Label>
-                  <Input
-                    id="timeTo"
-                    type="time"
-                    value={timeTo}
-                    onChange={(e) => setTimeTo(e.target.value)}
-                    className="h-12"
-                  />
-                </div>
 
                 {/* Task Count */}
                 <div className="space-y-2">
@@ -241,19 +242,22 @@ const TaskEntry = () => {
                 </div>
 
                 {/* Task Points */}
+                {/* Calculated Points (Read-only) */}
+
                 <div className="space-y-2">
                   <Label htmlFor="taskPoint" className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-muted-foreground" />
-                    {t('task.points') || 'Points'}
+                    {t('task.points') || 'Points'} ({TASK_POINTS[taskType]} {t('task.per')})
                   </Label>
                   <Input
                     id="taskPoint"
                     type="number"
                     min="0"
-                    value={taskPoint}
-                    onChange={(e) => setTaskPoint(e.target.value)}
+                    value={calculatedPoints.toFixed(2)}
+                    // onChange={(e) => setTaskPoint(e.target.value)}
                     placeholder="0"
                     className="h-12"
+                    readOnly
                   />
                 </div>
               </div>
@@ -266,7 +270,7 @@ const TaskEntry = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder={t('task.descriptionPlaceholder') || 'Describe the tasks completed...'}
-                  className="min-h-[100px] resize-none"
+                  className="min-h-[200px] resize-none"
                 />
               </div>
 
@@ -303,7 +307,12 @@ const TaskEntry = () => {
                       <div>
                         <p className="font-medium">{task.supervisorName}</p>
                         <p className="text-sm text-muted-foreground">
-                          {task.date} {task.timeFrom && task.timeTo && `• ${task.timeFrom} - ${task.timeTo}`}
+                          {task.date.toString().split('T')[0]}
+                          {task.taskType && task.taskType !== 'Other' && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                              {task.taskType}
+                            </span>
+                          )}
                         </p>
                         {task.description && (
                           <p className="text-xs text-muted-foreground mt-1">{task.description}</p>

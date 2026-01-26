@@ -35,7 +35,6 @@ const demoUsers: Record<string, User> = {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  console.log(user)
   // const [user, setUser] = useState<User | null>(() => {
 
   //   const stored = localStorage.getItem(AUTH_STORAGE_KEY);

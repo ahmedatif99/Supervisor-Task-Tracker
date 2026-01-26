@@ -1,6 +1,40 @@
 import { databases, DATABASE_ID, TASKS_COLLECTION_ID, Query } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 
+export const TASK_TYPES = [
+  'Google Review',
+  'Documents Order',
+  'Documents Vendor',
+  'Tickets Document',
+  'Ticket Filtering',
+  'Email Support',
+  'Stock Management',
+  'Apple Store Reviews',
+  'Email Sales',
+  'Tickets Data',
+  'Live Chat',
+  'Other',
+] as const;
+
+export type TaskType = typeof TASK_TYPES[number];
+
+export const TASK_POINTS: Record<TaskType, number> = {
+  'Google Review': 1,
+  'Documents Order': 1,
+  'Documents Vendor': 1,
+  'Tickets Document': 1,
+  'Ticket Filtering': 0.1,
+  'Email Support': 1,
+  'Stock Management': 0.05,
+  'Apple Store Reviews': 1,
+  'Email Sales': 1,
+  'Tickets Data': 1,
+  'Live Chat': 1,
+  'Other': 1,
+};
+
+
+
 export interface AppwriteTask {
   $id: string;
   supervisor_id: string;
@@ -9,6 +43,7 @@ export interface AppwriteTask {
   task_count: number;
   description: string;
   task_point: number;
+  task_type?: string;
   $createdAt: string;
   $updatedAt: string;
 }
@@ -18,8 +53,7 @@ export interface Task {
   supervisorId: string;
   supervisorName: string;
   date: string;
-  timeFrom: string;
-  timeTo: string;
+  taskType: TaskType;
   taskCount: number;
   description: string;
   taskPoint: number;
@@ -33,8 +67,7 @@ const transformTask = (doc: AppwriteTask): Task => ({
   supervisorId: doc.supervisor_id,
   supervisorName: doc.supervisor_name,
   date: doc.date,
-  timeFrom: '',
-  timeTo: '',
+  taskType: (doc.task_type as TaskType) || 'Other',
   taskCount: doc.task_count || 0,
   description: doc.description || '',
   taskPoint: doc.task_point || 0,
@@ -99,6 +132,7 @@ export const taskService = {
           supervisor_id: data.supervisorId,
           supervisor_name: data.supervisorName,
           date: data.date,
+          task_type: data.taskType || 'Other',
           task_count: data.taskCount,
           description: data.description || '',
           task_point: data.taskPoint || 0,
@@ -121,6 +155,7 @@ export const taskService = {
       if (data.taskCount !== undefined) updateData.task_count = data.taskCount;
       if (data.description !== undefined) updateData.description = data.description;
       if (data.taskPoint !== undefined) updateData.task_point = data.taskPoint;
+      if (data.taskType !== undefined) updateData.task_type = data.taskType;
 
       const doc = await databases.updateDocument(
         DATABASE_ID,
