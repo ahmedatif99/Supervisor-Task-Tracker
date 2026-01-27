@@ -82,7 +82,7 @@ const Login = () => {
       {/* Left Panel - Hero */}
       <div className="lg:flex-1 gradient-hero p-8 lg:p-16 flex flex-col justify-between text-primary-foreground">
         <div>
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-center gap-3 mb-8 mt-8">
             <ClipboardCheck className="w-10 h-10" />
             <span className="text-2xl font-bold">{t('app.title')}</span>
           </div>
