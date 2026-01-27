@@ -13,6 +13,7 @@ export interface SupervisorStats {
   dailyTasks: number;
   weeklyTasks: number;
   monthlyTasks: number;
+  totalPoints: number;
 }
 
 interface TaskContextType {
@@ -158,6 +159,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         dailyTasks: 0,
         weeklyTasks: 0,
         monthlyTasks: 0,
+        totalPoints: 0,
       });
     });
 
@@ -166,11 +168,12 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existing = statsMap.get(task.supervisorId);
       if (existing) {
         existing.totalTasks += task.taskCount;
+        existing.totalPoints += task.taskPoint || 0;
       }
     });
 
     // Sort by total tasks descending
-    return Array.from(statsMap.values()).sort((a, b) => b.totalTasks - a.totalTasks);
+    return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
   };
 
   const getSupervisorTasks = (supervisorId: string): Task[] => {

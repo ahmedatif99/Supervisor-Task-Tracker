@@ -71,6 +71,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { CircularProgress } from '@/components/CircularProgress';
 
 type FilterPeriod = 'daily' | 'weekly' | 'monthly' | 'all' | 'specific';
 
@@ -148,6 +149,7 @@ const Dashboard = () => {
           dailyTasks: 0,
           weeklyTasks: 0,
           monthlyTasks: 0,
+          totalPoints: 0,
         });
       });
 
@@ -155,10 +157,11 @@ const Dashboard = () => {
         const existing = statsMap.get(task.supervisorId);
         if (existing) {
           existing.totalTasks += task.taskCount;
+          existing.totalPoints += task.taskPoint || 0;
         }
       });
 
-      return Array.from(statsMap.values()).sort((a, b) => b.totalTasks - a.totalTasks);
+      return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
     }
     return getSupervisorStats(filter === 'specific' ? 'all' : filter);
   };
@@ -197,8 +200,8 @@ const Dashboard = () => {
   };
 
   const getProgressValue = (stat: SupervisorStats) => {
-    const maxTasks = stats[0]?.totalTasks || 1;
-    return (stat.totalTasks / maxTasks) * 100;
+    const maxPoints = stats[0]?.totalPoints || 1;
+    return (stat.totalPoints / maxPoints) * 100;
   };
 
   const resetForm = () => {
@@ -457,9 +460,9 @@ const Dashboard = () => {
                 <TableRow>
                   <TableHead className="w-20">{t('dashboard.rank')}</TableHead>
                   <TableHead>{t('dashboard.name')}</TableHead>
-                  <TableHead className="text-center">{t('dashboard.totalPoints')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
-                  <TableHead className="hidden md:table-cell">{t('dashboard.performance')}</TableHead>
+                  <TableHead className="hidden md:table-cell text-center">{t('dashboard.performance')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.totalPoints')}</TableHead>
                   {isAdmin && <TableHead className="w-24">{t('actions') || 'Actions'}</TableHead>}
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
@@ -475,7 +478,9 @@ const Dashboard = () => {
                       onClick={() => navigate(`/supervisor/${stat.id}`)}
                     >
                       <TableCell>
-                        <RankBadge rank={index + 1} />
+                        <RankBadge
+                          rank={stat.totalPoints >= 80 ? 1 : stat.totalPoints >= 50 ? 2 : 3}
+                        />
                       </TableCell>
                       <TableCell>
                         <div>
@@ -483,11 +488,7 @@ const Dashboard = () => {
                           <p className="text-sm text-muted-foreground">{stat.email}</p>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <span className="text-2xl font-bold text-primary">
-                          {stat.monthlyTasks}
-                        </span>
-                      </TableCell>
+
                       <TableCell className="text-center">
                         <span className="text-2xl font-bold text-primary">
                           {stat.totalTasks}
@@ -495,14 +496,19 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex items-center gap-3">
-                          <Progress
+                          <CircularProgress
                             value={getProgressValue(stat)}
                             className="h-2 flex-1"
+                            strokeWidth={5}
+                            size={50}
                           />
-                          <span className="text-sm text-muted-foreground w-12">
-                            {Math.round(getProgressValue(stat))}%
-                          </span>
                         </div>
+                      </TableCell>
+                      <TableCell className='text-center'>
+
+                        <span className={`${stat.totalPoints >= 90 ? `text-blue-500` : stat.totalPoints >= 75 ? 'text-red-700' : stat.totalPoints >= 50 ? 'text-orange-600' : 'text-red-700'} text-sm text-muted-foreground w-12`}>
+                          {stat.totalPoints.toFixed(1)} pts
+                        </span>
                       </TableCell>
                       {isAdmin && (
                         <TableCell onClick={(e) => e.stopPropagation()}>

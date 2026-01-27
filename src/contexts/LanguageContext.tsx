@@ -31,12 +31,15 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.login': 'Login',
+    'auth.name': 'Name',
     'auth.signup': 'Sign up',
     'auth.supervisor': 'Supervisor',
     'auth.admin': 'Admin',
     'auth.selectRole': 'Select your role',
     "auth.signupnow": 'Sign up now',
     "auth.dontHaveAccount": "Don't have an account",
+    'auth.haveAccount': 'Have an account',
+    'auth.loginNow': 'Login now',
 
 
     "supervisor.name": "Supervisor Name",
@@ -143,9 +146,12 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.signup': 'إنشاء حساب',
     'auth.supervisor': 'مشرف',
     'auth.admin': 'مدير',
+    'auth.name': 'الإسم',
+    'auth.haveAccount': 'لديك حساب ؟',
     'auth.selectRole': 'اختر دورك',
     "auth.signupnow": 'سجل الآن',
     "auth.dontHaveAccount": "لا تمتلك حساب ؟",
+    'auth.loginNow': 'سجل الدخول الآن',
 
     "supervisor.name": "اسم المشرف",
     "supervisor.email": "البريد الإلكتروني للمشرف",

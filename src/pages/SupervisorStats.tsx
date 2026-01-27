@@ -17,7 +17,7 @@ const SupervisorStats = () => {
     const supervisorTasks = getSupervisorTasks(supervisorId);
 
     const todayTasks = supervisorTasks
-        .filter(t => t.date === new Date().toISOString().split('T')[0])
+        .filter(t => t.date.toString().split('T')[0] === new Date().toISOString().split('T')[0])
         .reduce((sum, t) => sum + t.taskCount, 0);
 
     const weekTasks = supervisorTasks
@@ -38,7 +38,7 @@ const SupervisorStats = () => {
         })
         .reduce((sum, t) => sum + t.taskCount, 0);
 
-    const totalTasks = supervisorTasks.reduce((sum, t) => sum + t.taskCount, 0);
+    const totalTasks = supervisorTasks.reduce((sum, t) => sum + t.taskPoint, 0);
 
     return (
         <Layout>
@@ -74,9 +74,9 @@ const SupervisorStats = () => {
                         variant="default"
                     />
                     <StatCard
-                        title={t('dashboard.totalTasks')}
+                        title={t('dashboard.totalPoints')}
                         value={totalTasks}
-                        icon={<BarChart3 className="w-6 h-6 text-primary" />}
+                        icon={<BarChart3 className="w-6 h-6 text-white" />}
                         variant="primary"
                     />
                 </div>
@@ -106,7 +106,15 @@ const SupervisorStats = () => {
                                                 <div>
                                                     <p className="font-medium">{task.description || t('task.entry')}</p>
                                                     <p className="text-sm text-muted-foreground">
-                                                        {task.date} • {task.timeFrom} - {task.timeTo}
+                                                        {task.date.toString().split('T')[0]}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div>
+                                                    <p className="font-medium">{task.taskType || t('task.type')}</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {task.taskPoint} pts.
                                                     </p>
                                                 </div>
                                             </div>

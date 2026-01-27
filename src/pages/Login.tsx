@@ -63,7 +63,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const success = await signup(email, name, password, role);
+      const success = await signup(email, password, name, role);
       if (success) {
         toast.success('Signup successful!');
         // await createUser(success)
@@ -165,9 +165,9 @@ const Login = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground text-center">
+                    {/* <p className="text-sm text-muted-foreground text-center">
                       {t('auth.selectRole')}
-                    </p>
+                    </p> */}
                     <Tabs defaultValue="supervisor" className="w-full">
                       {/* <TabsList className="grid w-full grid-cols-2 h-12">
                         <TabsTrigger value="supervisor" className="gap-2">
@@ -284,7 +284,7 @@ const Login = () => {
                       </TabsContent>
                     </Tabs>
                     <p className="text-sm opacity-60">
-                      have an account <button onClick={() => setStatus("login")}>Login now</button>
+                      {t('auth.haveAccount')} <button onClick={() => setStatus("login")}>{t('auth.loginNow')}</button>
                     </p>
                   </div>
                 </div>
