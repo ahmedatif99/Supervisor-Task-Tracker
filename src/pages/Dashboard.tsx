@@ -110,7 +110,7 @@ const Dashboard = () => {
 
     if (filter === 'specific' && selectedDate) {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      filteredTasks = filteredTasks.filter(task => task.date === dateStr);
+      filteredTasks = filteredTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
     } else {
       filteredTasks = getTasksByPeriod(filter === 'specific' ? 'all' : filter);
     }
@@ -173,7 +173,8 @@ const Dashboard = () => {
   // const tasks = getTasksByPeriod(filter);
 
   const totalTasks = tasks.reduce((sum, t) => sum + t.taskCount, 0);
-  const avgDaily = stats.length > 0 ? Math.round(totalTasks / stats.length) : 0;
+  const totalPoints = tasks.reduce((sum, t) => sum + t.taskPoint, 0);
+  const avgDaily = stats.length > 0 ? Math.round(totalPoints / stats.length) : 0;
   const topPerformer = stats[0];
 
   const filterOptions: { value: FilterPeriod; label: string }[] = [
@@ -425,7 +426,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title={t('dashboard.totalTasks')}
-            value={totalTasks}
+            value={`${totalTasks}`}
             icon={<BarChart3 className="w-6 h-6 text-primary" />}
             variant="primary"
           />
@@ -436,7 +437,7 @@ const Dashboard = () => {
           />
           <StatCard
             title={t('dashboard.avgDaily')}
-            value={avgDaily}
+            value={`${avgDaily} pts`}
             icon={<TrendingUp className="w-6 h-6 text-primary" />}
           />
           <StatCard
