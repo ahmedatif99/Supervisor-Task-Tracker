@@ -15,7 +15,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, role: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string, role: string, isAdmin: boolean) => Promise<boolean>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -92,11 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return true;
   };
-  const signup = async (email: string, password: string, name: string, role: string): Promise<boolean> => {
+  const signup = async (email: string, password: string, name: string, role: string, isAdmin: boolean): Promise<boolean> => {
     try {
 
       const newUser = await account.create(ID.unique(), email, password, name);
-      await account.createEmailPasswordSession(email, password);
+      if (!isAdmin) {
+
+        await account.createEmailPasswordSession(email, password);
+      }
       await account.updatePrefs({ role: role });
 
       const doc = await databases.createDocument(

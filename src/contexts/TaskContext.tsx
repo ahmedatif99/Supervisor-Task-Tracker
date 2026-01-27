@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supervisorService, Supervisor } from '@/services/supervisorService';
 import { taskService, Task } from '@/services/taskService';
 import { toast } from 'sonner';
+import { useAuth } from './AuthContext';
 
 export type { Supervisor, Task };
 
@@ -43,6 +44,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [tasks, setTasks] = useState<Task[]>([]);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [loading, setLoading] = useState(true);
+  const { signup } = useAuth();
 
   // Fetch all data from Appwrite
   const refreshData = useCallback(async () => {
@@ -96,6 +98,7 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Supervisor CRUD operations
   const addSupervisor = async (supervisor: Omit<Supervisor, 'id' | 'createdAt' | 'updatedAt'>): Promise<Supervisor | null> => {
     const newSupervisor = await supervisorService.create(supervisor);
+    await signup(supervisor.email, supervisor.email, supervisor.name, 'supervisor', false);
     if (newSupervisor) {
       setSupervisors((prev) => [...prev, newSupervisor]);
       return newSupervisor;

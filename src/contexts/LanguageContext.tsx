@@ -108,7 +108,7 @@ const translations: Record<Language, Record<string, string>> = {
     'stats.daily': 'Daily Tasks',
     'stats.weekly': 'Weekly Tasks',
     'stats.monthly': 'Monthly Tasks',
-    "recent.activity": "النشاط الأخير",
+    "recent.activity": "Recent Activity",
     "tasks": "tasks",
 
     // Supervisor Detail

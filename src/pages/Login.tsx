@@ -63,7 +63,8 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const success = await signup(email, password, name, role);
+      const isAdmin = false;
+      const success = await signup(email, password, name, role, isAdmin);
       if (success) {
         toast.success('Signup successful!');
         // await createUser(success)
