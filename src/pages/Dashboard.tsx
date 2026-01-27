@@ -130,7 +130,7 @@ const Dashboard = () => {
 
       if (filter === 'specific' && selectedDate) {
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        dayTasks = dayTasks.filter(task => task.date === dateStr);
+        dayTasks = dayTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
       } else if (filter !== 'specific') {
         dayTasks = getTasksByPeriod(filter);
       }
