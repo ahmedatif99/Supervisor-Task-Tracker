@@ -9,6 +9,7 @@ export interface AppwriteSupervisor {
   total_task: number;
   rank: number;
   role: string;
+   working_days: number;
   $createdAt: string;
   $updatedAt: string;
 }
@@ -20,6 +21,7 @@ export interface Supervisor {
   totalPoints: number;
   totalTask: number;
   rank: number;
+   workingDays: number;
   role: string;
   createdAt: string;
   updatedAt: string;
@@ -34,6 +36,7 @@ const transformSupervisor = (doc: AppwriteSupervisor): Supervisor => ({
   totalTask: doc.total_task || 0,
   rank: doc.rank || 0,
   role: doc.role || 'supervisor',
+  workingDays: doc.working_days || 22, // Default to 22 working days
   createdAt: doc.$createdAt,
   updatedAt: doc.$updatedAt,
 });
@@ -83,6 +86,7 @@ export const supervisorService = {
           total_task: data.totalTask || 0,
           rank: data.rank || 0,
           role: data.role || 'supervisor',
+           working_days: data.workingDays || 22,
         }
       );
       return transformSupervisor(doc as unknown as AppwriteSupervisor);
@@ -102,6 +106,7 @@ export const supervisorService = {
       if (data.totalTask !== undefined) updateData.total_task = data.totalTask;
       if (data.rank !== undefined) updateData.rank = data.rank;
       if (data.role !== undefined) updateData.role = data.role;
+       if (data.workingDays !== undefined) updateData.working_days = data.workingDays;
 
       const doc = await databases.updateDocument(
         DATABASE_ID,

@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import SupervisorStats from "./pages/SupervisorStats";
 import SupervisorDetail from "./pages/SupervisorDetail";
 import { PageLoader } from "@/components/LoadingSpinner";
+import WorkingDay from "./pages/WorkingDay";
 
 
 const queryClient = new QueryClient();
@@ -63,6 +64,14 @@ const App = () => (
                   element={
                     <ProtectedRoute adminOnly>
                       <TaskEntry />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/working-day"
+                  element={
+                    <ProtectedRoute adminOnly>
+                      <WorkingDay />
                     </ProtectedRoute>
                   }
                 />

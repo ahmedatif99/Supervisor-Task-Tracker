@@ -17,17 +17,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar, FileText, CheckCircle, Users, TrendingUp, Loader2, Tag } from 'lucide-react';
+import { Calendar, Clock, FileText, CheckCircle, Users, TrendingUp, Loader2, Tag, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { TASK_TYPES, TASK_POINTS, TaskType } from '@/services/taskService';
-import { set } from 'date-fns';
+import { TASK_TYPES, TASK_POINTS, TaskType, Task } from '@/services/taskService';
+import { TaskEditDialog } from '@/components/TaskEditDialog';
+
 
 
 const TaskEntry = () => {
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
-  const { addTask, supervisors, tasks, loading } = useTasks();
+  const { addTask, updateTask, supervisors, tasks, loading } = useTasks();
 
   const [selectedSupervisor, setSelectedSupervisor] = useState('');
   // const [selectTaskType, setSelectTaskType] = useState('');
@@ -43,6 +44,10 @@ const TaskEntry = () => {
   const [taskPoint, setTaskPoint] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Edit dialog state
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   // Only admin can access this page
   if (!isAdmin) {
@@ -104,6 +109,20 @@ const TaskEntry = () => {
   const recentTasks = [...tasks]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
+
+  const handleEditTask = (task: Task) => {
+    setEditingTask(task);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveTask = async (id: string, data: Partial<Task>) => {
+    const updated = await updateTask(id, data);
+    if (updated) {
+      toast.success(t('task.updateSuccess') || 'Task updated successfully');
+    } else {
+      toast.error(t('task.updateError') || 'Failed to update task');
+    }
+  };
 
   if (loading) {
     return (
@@ -319,9 +338,20 @@ const TaskEntry = () => {
                         )}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">{task.taskCount}</p>
-                      <p className="text-xs text-muted-foreground">{t('dashboard.tasks') || 'tasks'}</p>
+
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary">{task.taskCount}</p>
+                        <p className="text-xs text-muted-foreground">{task.taskPoint?.toFixed(2)} pts</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditTask(task)}
+                        className="h-9 w-9"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -329,6 +359,13 @@ const TaskEntry = () => {
             </CardContent>
           </Card>
         )}
+        {/* Task Edit Dialog */}
+        <TaskEditDialog
+          task={editingTask}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSave={handleSaveTask}
+        />
       </div>
     </Layout>
   );

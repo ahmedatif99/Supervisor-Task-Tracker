@@ -16,6 +16,7 @@ const translations: Record<Language, Record<string, string>> = {
     'app.subtitle': 'Track hourly tasks and generate performance evaluations',
     'nav.dashboard': 'Dashboard',
     'nav.entry': 'Task Entry',
+    'nav.workingDay': 'Working Days',
     'nav.myStats': 'My Statistics',
     'nav.logout': 'Logout',
     'nav.login': 'Login',
@@ -102,6 +103,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.topPerformer': 'Top Performer',
     'dashboard.supervisors': 'Supervisors',
     'supervisor.add': 'Add Supervisors',
+    'dashboard.allSupervisorWorkingDays': 'All Working Days',
 
     // Stats
     'stats.hourly': 'Hourly Tasks',
@@ -128,6 +130,7 @@ const translations: Record<Language, Record<string, string>> = {
     'app.subtitle': 'تتبع المهام بالساعة وإنشاء تقييمات الأداء',
     'nav.dashboard': 'لوحة التحكم',
     'nav.entry': 'إدخال المهام',
+    'nav.workingDay': 'أيام العمل',
     'nav.myStats': 'إحصائياتي',
     'nav.logout': 'تسجيل الخروج',
     'nav.login': 'تسجيل الدخول',
@@ -212,6 +215,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.topPerformer': 'الأفضل أداءً',
     'dashboard.supervisors': 'المشرفين',
     'supervisor.add': 'إضافة مشرفين',
+    'dashboard.allSupervisorWorkingDays': 'جميع أيام العمل للمشرفين',
 
     // Stats
     'stats.hourly': 'المهام بالساعة',

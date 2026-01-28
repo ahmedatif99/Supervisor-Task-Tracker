@@ -30,6 +30,7 @@ export const Layout = ({ children }: LayoutProps) => {
     ? [
       { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
       { href: '/task-entry', icon: ClipboardList, label: t('nav.entry') },
+      { href: '/working-day', icon: ClipboardList, label: t('nav.workingDay') },
     ]
     : [{ href: '/my-stats', icon: LayoutDashboard, label: t('nav.myStats') }];
 

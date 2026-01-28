@@ -15,6 +15,8 @@ export interface SupervisorStats {
   weeklyTasks: number;
   monthlyTasks: number;
   totalPoints: number;
+  workingDays: number;
+  averagePoints: number;
 }
 
 interface TaskContextType {
@@ -163,6 +165,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         weeklyTasks: 0,
         monthlyTasks: 0,
         totalPoints: 0,
+        workingDays: sup.workingDays || 22,
+        averagePoints: 0,
       });
     });
 
@@ -175,8 +179,16 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Sort by total tasks descending
-    return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
+    // Calculate average points per working day
+    statsMap.forEach((stats) => {
+      stats.averagePoints = stats.workingDays > 0 ? stats.totalPoints / stats.workingDays : 0;
+    });
+
+    // Sort by average points descending
+    return Array.from(statsMap.values()).sort((a, b) => b.averagePoints - a.averagePoints);
+
+    // // Sort by total tasks descending
+    // return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
   };
 
   const getSupervisorTasks = (supervisorId: string): Task[] => {

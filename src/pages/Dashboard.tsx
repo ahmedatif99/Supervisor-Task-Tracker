@@ -150,6 +150,8 @@ const Dashboard = () => {
           weeklyTasks: 0,
           monthlyTasks: 0,
           totalPoints: 0,
+          workingDays: sup.workingDays || 22,
+          averagePoints: 0,
         });
       });
 
@@ -161,7 +163,14 @@ const Dashboard = () => {
         }
       });
 
-      return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
+      // Calculate average points per working day
+      statsMap.forEach((stats) => {
+        stats.averagePoints = stats.workingDays > 0 ? stats.totalPoints / stats.workingDays : 0;
+      });
+
+      return Array.from(statsMap.values()).sort((a, b) => b.averagePoints - a.averagePoints);
+
+      // return Array.from(statsMap.values()).sort((a, b) => b.totalPoints - a.totalPoints);
     }
     return getSupervisorStats(filter === 'specific' ? 'all' : filter);
   };
@@ -201,8 +210,10 @@ const Dashboard = () => {
   };
 
   const getProgressValue = (stat: SupervisorStats) => {
-    const maxPoints = stats[0]?.totalPoints || 1;
-    return (stat.totalPoints / maxPoints) * 100;
+    // const maxPoints = stats[0]?.totalPoints || 1;
+    // return (stat.totalPoints / maxPoints) * 100;
+    const maxAveragePoints = stats[0]?.averagePoints || 1;
+    return (stat.averagePoints / maxAveragePoints) * 100;
   };
 
   const resetForm = () => {
@@ -233,6 +244,8 @@ const Dashboard = () => {
         totalPoints: 0,
         totalTask: 0,
         rank: 0,
+        workingDays: 22,
+
       });
 
       if (newSupervisor) {
