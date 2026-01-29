@@ -172,7 +172,7 @@ const SupervisorDetail = () => {
                                 <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
                                     <User className="w-6 h-6 text-primary" />
                                 </div>
-                                {supervisor.name}
+                                {supervisor.name.charAt(0).toUpperCase() + supervisor.name.slice(1)}
                             </h1>
                             <p className="text-muted-foreground mt-1">{supervisor.email}</p>
                         </div>
@@ -212,6 +212,7 @@ const SupervisorDetail = () => {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className={isRTL && "text-right"}>{t('task.date')}</TableHead>
+                                    <TableHead className={isRTL && "text-right"}>{t('task.type')}</TableHead>
                                     <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
                                     <TableHead className="text-center">{t('task.points') || 'Points'}</TableHead>
                                     <TableHead className={isRTL ? "hidden md:table-cell text-right" : "hidden md:table-cell"}>{t('task.description')}</TableHead>
@@ -230,6 +231,11 @@ const SupervisorDetail = () => {
                                                 <div className="flex items-center gap-2">
                                                     <Calendar className="w-4 h-4 text-muted-foreground" />
                                                     <span className="font-medium">{task.date.toString().split('T')[0]}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium">{task.taskType}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-center">

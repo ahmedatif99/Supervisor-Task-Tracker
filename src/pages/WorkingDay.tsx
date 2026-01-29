@@ -28,7 +28,7 @@ const WorkingDays: React.FC = () => {
             if (!acc[supervisorId]) {
                 acc[supervisorId] = {
                     id: supervisorId,
-                    name: supervisorName,
+                    name: supervisorName.charAt(0).toUpperCase() + supervisorName.slice(1),
                     records: {}
                 };
             }

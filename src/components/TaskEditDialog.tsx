@@ -73,7 +73,7 @@ export const TaskEditDialog = ({ task, open, onOpenChange, onSave }: TaskEditDia
                 <DialogHeader>
                     <DialogTitle>{t('task.edit') || 'Edit Task'}</DialogTitle>
                     <DialogDescription>
-                        {task?.supervisorName} - {t('task.editDescription') || 'Update task details'}
+                        {task?.supervisorName.charAt(0).toUpperCase() + task?.supervisorName.slice(1)} - {t('task.editDescription') || 'Update task details'}
                     </DialogDescription>
                 </DialogHeader>
 

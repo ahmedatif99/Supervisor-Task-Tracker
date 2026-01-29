@@ -65,7 +65,7 @@ export interface Task {
 const transformTask = (doc: AppwriteTask): Task => ({
   id: doc.$id,
   supervisorId: doc.supervisor_id,
-  supervisorName: doc.supervisor_name,
+  supervisorName: doc.supervisor_name.charAt(0).toUpperCase() + doc.supervisor_name.slice(1),
   date: doc.date,
   taskType: (doc.task_type as TaskType) || 'Other',
   taskCount: doc.task_count || 0,
@@ -130,7 +130,7 @@ export const taskService = {
         ID.unique(),
         {
           supervisor_id: data.supervisorId,
-          supervisor_name: data.supervisorName,
+          supervisor_name: data.supervisorName.charAt(0).toUpperCase() + data.supervisorName.slice(1),
           date: data.date,
           task_type: data.taskType || 'Other',
           task_count: data.taskCount,
@@ -150,7 +150,7 @@ export const taskService = {
     try {
       const updateData: Record<string, unknown> = {};
       if (data.supervisorId !== undefined) updateData.supervisor_id = data.supervisorId;
-      if (data.supervisorName !== undefined) updateData.supervisor_name = data.supervisorName;
+      if (data.supervisorName !== undefined) updateData.supervisor_name = data.supervisorName.charAt(0).toUpperCase() + data.supervisorName.slice(1);
       if (data.date !== undefined) updateData.date = data.date;
       if (data.taskCount !== undefined) updateData.task_count = data.taskCount;
       if (data.description !== undefined) updateData.description = data.description;

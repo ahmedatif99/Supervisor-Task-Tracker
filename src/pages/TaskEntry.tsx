@@ -80,7 +80,7 @@ const TaskEntry = () => {
     try {
       const newTask = await addTask({
         supervisorId: supervisor.id,
-        supervisorName: supervisor.name,
+        supervisorName: supervisor.name.charAt(0).toUpperCase() + supervisor.name.slice(1),
         date,
         taskType,
         taskCount: parseInt(taskCount),
@@ -324,7 +324,7 @@ const TaskEntry = () => {
                         <CheckCircle className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{task.supervisorName}</p>
+                        <p className="font-medium">{task.supervisorName.charAt(0).toUpperCase() + task.supervisorName.slice(1)}</p>
                         <p className="text-sm text-muted-foreground">
                           {task.date.toString().split('T')[0]}
                           {task.taskType && task.taskType !== 'Other' && (

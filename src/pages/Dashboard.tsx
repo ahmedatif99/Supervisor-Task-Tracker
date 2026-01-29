@@ -455,7 +455,7 @@ const Dashboard = () => {
           />
           <StatCard
             title={t('dashboard.topPerformer')}
-            value={topPerformer?.name || '-'}
+            value={topPerformer?.name.charAt(0).toUpperCase() + topPerformer?.name.slice(1) || '-'}
             icon={<Award className="w-6 h-6 text-primary" />}
           />
         </div>
@@ -498,7 +498,7 @@ const Dashboard = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium group-hover:text-primary transition-colors">{stat.name}</p>
+                          <p className="font-medium group-hover:text-primary transition-colors">{stat.name.charAt(0).toUpperCase() + stat.name.slice(1)}</p>
                           <p className="text-sm text-muted-foreground">{stat.email}</p>
                         </div>
                       </TableCell>
@@ -592,7 +592,7 @@ const Dashboard = () => {
                       index === 0 ? "bg-success" : "bg-muted-foreground"
                     )} />
                     <div>
-                      <p className="font-medium">{task.supervisorName}</p>
+                      <p className="font-medium">{task.supervisorName.charAt(0).toUpperCase() + task.supervisorName.slice(1)}</p>
                       <p className="text-sm text-muted-foreground">
                         {task.date.toString().split('T')[0]}
                       </p>
