@@ -60,7 +60,10 @@ const WorkingDays: React.FC = () => {
         };
     }, [allTasks]);
 
-    console.log(summary, "summary")
+    const formatDate = (dateStr) => {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+    };
 
     return (
         <Layout>
@@ -78,7 +81,7 @@ const WorkingDays: React.FC = () => {
                                 <TableHead colSpan={2} className={`${isRTL ? 'border-l' : 'border-r'}`}>{t('dashboard.name')}</TableHead>
                                 {summary?.availableDates.map(date => (
                                     <TableHead key={date} className={`text-center ${isRTL ? 'border-l' : 'border-r'}`} colSpan={2}>
-                                        {new Date(date).toLocaleDateString()}
+                                        {formatDate(date)}
                                     </TableHead>
                                 ))}
 

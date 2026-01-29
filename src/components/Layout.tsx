@@ -10,7 +10,8 @@ import {
   LogOut,
   Menu,
   X,
-  ChevronRight
+  ChevronRight,
+  CalendarDays
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -30,7 +31,7 @@ export const Layout = ({ children }: LayoutProps) => {
     ? [
       { href: '/dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
       { href: '/task-entry', icon: ClipboardList, label: t('nav.entry') },
-      { href: '/working-day', icon: ClipboardList, label: t('nav.workingDay') },
+      { href: '/working-day', icon: CalendarDays, label: t('nav.workingDay') },
     ]
     : [{ href: '/my-stats', icon: LayoutDashboard, label: t('nav.myStats') }];
 
