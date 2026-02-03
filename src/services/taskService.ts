@@ -17,6 +17,7 @@ export const TASK_TYPES = [
   'Tickets Data',
   'Live Chat',
   'Number was added to another Client',
+  "Review pending doucement orders": 1, 
   'Other',
 ] as const;
 
@@ -38,6 +39,7 @@ export const TASK_POINTS: Record<TaskType, number> = {
   'Tickets Data': 1,
   'Live Chat': 1,
   'Number was added to another Client': 1,
+  "Review pending doucement orders": 1, 
   'Other': 1,
 };
 
