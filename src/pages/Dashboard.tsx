@@ -140,6 +140,8 @@ const Dashboard = () => {
         dayTasks = dayTasks.filter(task => task.taskType === selectedTaskType);
       }
       const statsMap = new Map<string, SupervisorStats>();
+      const supervisorDates = new Map<string, Set<string>>(); // Track unique dates per supervisor
+
       supervisors.forEach((sup) => {
         statsMap.set(sup.id, {
           id: sup.id,
@@ -150,21 +152,29 @@ const Dashboard = () => {
           weeklyTasks: 0,
           monthlyTasks: 0,
           totalPoints: 0,
-          workingDays: sup.workingDays || 22,
+          workingDays: 0,
           averagePoints: 0,
         });
+        supervisorDates.set(sup.id, new Set<string>());
+
       });
 
       dayTasks.forEach((task) => {
         const existing = statsMap.get(task.supervisorId);
-        if (existing) {
+        const dates = supervisorDates.get(task.supervisorId);
+
+        if (existing && dates) {
           existing.totalTasks += task.taskCount;
           existing.totalPoints += task.taskPoint || 0;
+          dates.add(task.date);
+
         }
       });
 
       // Calculate average points per working day
-      statsMap.forEach((stats) => {
+      statsMap.forEach((stats, supervisorId) => {
+        const dates = supervisorDates.get(supervisorId);
+        stats.workingDays = dates ? dates.size : 0;
         stats.averagePoints = stats.workingDays > 0 ? stats.totalPoints / stats.workingDays : 0;
       });
 
@@ -244,7 +254,7 @@ const Dashboard = () => {
         totalPoints: 0,
         totalTask: 0,
         rank: 0,
-        workingDays: 22,
+        workingDays: 0,
 
       });
 
@@ -475,8 +485,9 @@ const Dashboard = () => {
                   <TableHead className="w-20">{t('dashboard.rank')}</TableHead>
                   <TableHead>{t('dashboard.name')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
-                  <TableHead className="hidden md:table-cell text-center">{t('dashboard.performance')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.totalPoints')}</TableHead>
+                  <TableHead className="text-center">{t('dashboard.avgPoints')}</TableHead>
+                  <TableHead className="hidden md:table-cell text-center">{t('dashboard.performance')}</TableHead>
                   {isAdmin && <TableHead className="w-24">{t('actions') || 'Actions'}</TableHead>}
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
@@ -508,6 +519,18 @@ const Dashboard = () => {
                           {stat.totalTasks}
                         </span>
                       </TableCell>
+                      <TableCell className='text-center'>
+
+                        <span className={`${stat.totalPoints >= 90 ? `text-blue-500` : stat.totalPoints >= 75 ? 'text-red-700' : stat.totalPoints >= 50 ? 'text-orange-600' : 'text-red-700'} text-sm text-muted-foreground w-12`}>
+                          {stat.totalPoints.toFixed(1)} pts
+                        </span>
+                      </TableCell>
+                      <TableCell className='text-center'>
+
+                        <span className={`${stat.totalPoints >= 90 ? `text-blue-500` : stat.totalPoints >= 75 ? 'text-red-700' : stat.totalPoints >= 50 ? 'text-orange-600' : 'text-red-700'} text-sm text-muted-foreground w-12`}>
+                          {stat.averagePoints.toFixed(1)} pts
+                        </span>
+                      </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <div className="flex items-center gap-3">
                           <CircularProgress
@@ -518,12 +541,7 @@ const Dashboard = () => {
                           />
                         </div>
                       </TableCell>
-                      <TableCell className='text-center'>
 
-                        <span className={`${stat.totalPoints >= 90 ? `text-blue-500` : stat.totalPoints >= 75 ? 'text-red-700' : stat.totalPoints >= 50 ? 'text-orange-600' : 'text-red-700'} text-sm text-muted-foreground w-12`}>
-                          {stat.totalPoints.toFixed(1)} pts
-                        </span>
-                      </TableCell>
                       {isAdmin && (
                         <TableCell onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center gap-2">

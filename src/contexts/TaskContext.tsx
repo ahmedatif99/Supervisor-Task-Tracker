@@ -153,6 +153,8 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const periodTasks = getTasksByPeriod(period);
 
     const statsMap = new Map<string, SupervisorStats>();
+    const supervisorDates = new Map<string, Set<string>>(); // Track unique dates per supervisor
+
 
     // Initialize with supervisors
     supervisors.forEach((sup) => {
@@ -165,22 +167,30 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({ children
         weeklyTasks: 0,
         monthlyTasks: 0,
         totalPoints: 0,
-        workingDays: sup.workingDays || 22,
+        workingDays: 0,
         averagePoints: 0,
       });
+      supervisorDates.set(sup.id, new Set<string>());
+
     });
 
-    // Calculate stats
+    // Calculate stats and track unique dates
     periodTasks.forEach((task) => {
       const existing = statsMap.get(task.supervisorId);
-      if (existing) {
+      const dates = supervisorDates.get(task.supervisorId);
+      if (existing && dates) {
         existing.totalTasks += task.taskCount;
         existing.totalPoints += task.taskPoint || 0;
+        dates.add(task.date);
+
       }
     });
 
     // Calculate average points per working day
-    statsMap.forEach((stats) => {
+    statsMap.forEach((stats, supervisorId) => {
+      const dates = supervisorDates.get(supervisorId);
+      stats.workingDays = dates ? dates.size : 0;
+
       stats.averagePoints = stats.workingDays > 0 ? stats.totalPoints / stats.workingDays : 0;
     });
 
