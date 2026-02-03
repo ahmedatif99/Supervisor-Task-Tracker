@@ -78,7 +78,7 @@ const WorkingDays: React.FC = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead colSpan={2} className={`${isRTL ? 'border-l' : 'border-r'}`}>{t('dashboard.name')}</TableHead>
+                                <TableHead colSpan={2} className={`${isRTL ? 'border-l' : 'border-r'} sticky left-0 z-1 bg-slate-50`}>{t('dashboard.name')}</TableHead>
                                 {summary?.availableDates.map(date => (
                                     <TableHead key={date} className={`text-center ${isRTL ? 'border-l' : 'border-r'}`} colSpan={2}>
                                         {formatDate(date)}
@@ -87,7 +87,7 @@ const WorkingDays: React.FC = () => {
 
                             </TableRow>
                             <TableRow>
-                                <TableHead colSpan={2}>-</TableHead>
+                                <TableHead colSpan={2} className="sticky left-0 z-1 bg-slate-50">-</TableHead>
                                 {
                                     summary?.availableDates?.map(date => (
                                         <React.Fragment key={`${date}-sub`}>
@@ -107,7 +107,7 @@ const WorkingDays: React.FC = () => {
                                         style={{ animationDelay: `${index * 50}ms` }}
                                         onClick={() => navigate(`/supervisor/${stat.id}`)}
                                     >
-                                        <TableCell colSpan={2}>
+                                        <TableCell colSpan={2} className="sticky left-0 z-1 bg-slate-50">
                                             <div>
                                                 <p className="font-medium group-hover:text-primary transition-colors">{stat.name}</p>
                                             </div>

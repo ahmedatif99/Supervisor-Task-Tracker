@@ -487,6 +487,7 @@ const Dashboard = () => {
                   <TableHead className="text-center">{t('dashboard.tasks')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.totalPoints')}</TableHead>
                   <TableHead className="text-center">{t('dashboard.avgPoints')}</TableHead>
+                  <TableHead className="hidden md:table-cell text-center">{t('dashboard.workingDays')}</TableHead>
                   <TableHead className="hidden md:table-cell text-center">{t('dashboard.performance')}</TableHead>
                   {isAdmin && <TableHead className="w-24">{t('actions') || 'Actions'}</TableHead>}
                   <TableHead className="w-12"></TableHead>
@@ -529,6 +530,11 @@ const Dashboard = () => {
 
                         <span className={`${stat.totalPoints >= 90 ? `text-blue-500` : stat.totalPoints >= 75 ? 'text-red-700' : stat.totalPoints >= 50 ? 'text-orange-600' : 'text-red-700'} text-sm text-muted-foreground w-12`}>
                           {stat.averagePoints.toFixed(1)} pts
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className={`text-sm text-muted-foreground w-12`}>
+                          {stat.workingDays} day/s
                         </span>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
