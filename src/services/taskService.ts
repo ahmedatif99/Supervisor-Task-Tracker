@@ -17,7 +17,7 @@ export const TASK_TYPES = [
   'Tickets Data',
   'Live Chat',
   'Number was added to another Client',
-  "Review pending doucement orders": 1, 
+  "Review pending doucement orders", 
   'Other',
 ] as const;
 
