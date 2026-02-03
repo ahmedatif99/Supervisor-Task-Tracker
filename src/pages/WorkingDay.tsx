@@ -116,8 +116,8 @@ const WorkingDays: React.FC = () => {
                                             const record = stat.records.find(r => r.date === date);
                                             return (
                                                 <React.Fragment key={`${stat.id}-${date}`} colSpan={2} className="text-center border-r">
-                                                    <TableCell className={`text-center ${isRTL ? 'border-r' : 'border-l'}`}>{record?.tasks || 'No Rec.'}</TableCell>
-                                                    <TableCell className={`text-center ${isRTL ? 'border-l' : 'border-r'}`}>{record?.points || 'No Rec.'}</TableCell>
+                                                    <TableCell className={`text-center ${isRTL ? 'border-r' : 'border-l'}`}>{record?.tasks || '-'}</TableCell>
+                                                    <TableCell className={`text-center ${isRTL ? 'border-l' : 'border-r'}`}>{record?.points || '-'}</TableCell>
                                                 </React.Fragment>
                                             )
                                         })}

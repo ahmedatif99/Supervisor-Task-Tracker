@@ -106,6 +106,10 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.supervisors': 'Supervisors',
     'supervisor.add': 'Add Supervisors',
     'dashboard.allSupervisorWorkingDays': 'All Working Days',
+    'supervisor.edit': 'Edit Supervisor',
+    'supervisor.editDescription': 'Edit supervisor data',
+    'supervisor.deleteConfirmTitle': 'Are You sure to delete this supervisor ?',
+    'supervisor.deleteConfirmDescription': 'Are you sure you want to delete this supervisor? This will also remove all their tasks. This action cannot be undone.',
 
     // Stats
     'stats.hourly': 'Hourly Tasks',
@@ -220,6 +224,11 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.supervisors': 'المشرفين',
     'supervisor.add': 'إضافة مشرفين',
     'dashboard.allSupervisorWorkingDays': 'جميع أيام العمل للمشرفين',
+    'supervisor.edit': 'تعديل المشرفين',
+    'supervisor.editDescription': 'تعديل بيانات المشرف',
+    'supervisor.deleteConfirmTitle': 'هل أنت متأكد انك تريد حذف بيانات هذا المشرف',
+    'supervisor.deleteConfirmDescription': 'هل أنت متأكد من رغبتك في حذف هذا المشرف؟ سيؤدي هذا إلى حذف جميع مهامه. لا يمكن التراجع عن هذا الإجراء.',
+
 
     // Stats
     'stats.hourly': 'المهام بالساعة',

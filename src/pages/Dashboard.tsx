@@ -473,9 +473,15 @@ const Dashboard = () => {
         {/* Rankings Table */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
-              {t('dashboard.rankings')}
+            <CardTitle className="flex justify-between">
+              <div className='flex items-center gap-2'>
+                <Award className="w-5 h-5 text-primary" />
+                {t('dashboard.rankings')}
+              </div>
+              <div className='flex items-center gap-2'>
+                <p className='text-lg'>Total points:</p>
+                <span className="text-sm text-muted-foreground">{totalPoints}</span>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
