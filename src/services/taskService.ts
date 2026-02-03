@@ -31,7 +31,7 @@ export const TASK_POINTS: Record<TaskType, number> = {
   'Ticket Social Media': 1,
   'Ticket User & Account': 1,
   'Email Support': 1,
-  'Stock Management': 0.05,
+  'Stock Management': 20,
   'Apple Store Reviews': 1,
   'Email Sales': 1,
   'Tickets Data': 1,
