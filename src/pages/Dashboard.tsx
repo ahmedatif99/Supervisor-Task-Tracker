@@ -193,7 +193,7 @@ const Dashboard = () => {
 
   const totalTasks = tasks.reduce((sum, t) => sum + t.taskCount, 0);
   const totalPoints = tasks.reduce((sum, t) => sum + t.taskPoint, 0);
-  const avgDaily = stats.length > 0 ? Math.round(totalPoints / stats.length) : 0;
+  const avgDaily = stats.length > 0 ? Math.round(totalPoints / stats.filter(st => st.totalPoints).length) : 0;
   const topPerformer = stats[0];
 
   const filterOptions: { value: FilterPeriod; label: string }[] = [
