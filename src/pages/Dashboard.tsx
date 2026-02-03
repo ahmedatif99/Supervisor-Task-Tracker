@@ -89,7 +89,7 @@ const Dashboard = () => {
     deleteSupervisor,
     loading
   } = useTasks();
-  const [filter, setFilter] = useState<FilterPeriod>('weekly');
+  const [filter, setFilter] = useState<FilterPeriod>('all');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTaskType, setSelectedTaskType] = useState<TaskType | 'all'>('all');
 
@@ -212,7 +212,7 @@ const Dashboard = () => {
 
   const clearDateFilter = () => {
     setSelectedDate(undefined);
-    setFilter('weekly');
+    setFilter('all');
   };
 
   const clearTaskTypeFilter = () => {
