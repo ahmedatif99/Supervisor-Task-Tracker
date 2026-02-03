@@ -90,11 +90,11 @@ const TaskEntry = () => {
 
       if (newTask) {
         toast.success(t('task.success'));
-        setSelectedSupervisor('');
+        // setSelectedSupervisor('');
         setTaskType('Other');
-        setTaskCount('');
-        setTaskPoint('');
-        setDescription('');
+        // setTaskCount('');
+        // setTaskPoint('');
+        // setDescription('');
       } else {
         toast.error('Failed to add task');
       }
