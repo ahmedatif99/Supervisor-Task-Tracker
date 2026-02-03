@@ -48,7 +48,9 @@ export const supervisorService = {
       const response = await databases.listDocuments(
         DATABASE_ID,
         SUPERVISORS_COLLECTION_ID,
-        [Query.orderDesc('total_task'), Query.limit(100)]
+        [Query.orderDesc('total_task'), 
+          Query.limit(10000)
+        ]
       );
       return response.documents.map((doc) => transformSupervisor(doc as unknown as AppwriteSupervisor));
     } catch (error) {

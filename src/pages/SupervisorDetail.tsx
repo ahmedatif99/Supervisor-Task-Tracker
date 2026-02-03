@@ -69,8 +69,9 @@ const SupervisorDetail = () => {
     const [editTaskPoint, setEditTaskPoint] = useState('');
     const [editDescription, setEditDescription] = useState('');
 
-    const supervisor = getSupervisorById(id || '');
-    const tasks = getSupervisorTasks(id || '');
+    const supervisor = getSupervisorById(id);
+    const tasks = getSupervisorTasks(id);
+    // console.log(tasks, "task")
 
     // Calculate stats
     const totalTasks = tasks.reduce((sum, task) => sum + task.taskCount, 0);

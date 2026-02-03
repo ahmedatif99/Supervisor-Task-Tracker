@@ -92,7 +92,9 @@ export const taskService = {
       const response = await databases.listDocuments(
         DATABASE_ID,
         TASKS_COLLECTION_ID,
-        [Query.orderDesc('$createdAt'), Query.limit(500)]
+        [Query.orderDesc('$createdAt'), 
+          Query.limit(15000)
+        ]
       );
       return response.documents.map((doc) => transformTask(doc as unknown as AppwriteTask));
     } catch (error) {
@@ -107,7 +109,9 @@ export const taskService = {
       const response = await databases.listDocuments(
         DATABASE_ID,
         TASKS_COLLECTION_ID,
-        [Query.equal('supervisor_id', supervisorId), Query.orderDesc('date'), Query.limit(100)]
+        [Query.equal('supervisor_id', supervisorId), Query.orderDesc('date'), 
+          Query.limit(50)
+        ]
       );
       return response.documents.map((doc) => transformTask(doc as unknown as AppwriteTask));
     } catch (error) {
@@ -205,7 +209,7 @@ export const taskService = {
           Query.greaterThanEqual('date', startDate),
           Query.lessThanEqual('date', endDate),
           Query.orderDesc('date'),
-          Query.limit(500)
+          Query.limit(5000)
         ]
       );
       return response.documents.map((doc) => transformTask(doc as unknown as AppwriteTask));
