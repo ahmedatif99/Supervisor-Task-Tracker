@@ -16,6 +16,7 @@ export const TASK_TYPES = [
   'Email Sales',
   'Tickets Data',
   'Live Chat',
+  'Number was added to another Client',
   'Other',
 ] as const;
 
@@ -36,6 +37,7 @@ export const TASK_POINTS: Record<TaskType, number> = {
   'Email Sales': 1,
   'Tickets Data': 1,
   'Live Chat': 1,
+  'Number was added to another Client': 1,
   'Other': 1,
 };
 
