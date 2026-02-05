@@ -92,7 +92,7 @@ const TaskEntry = () => {
         toast.success(t('task.success'));
         // setSelectedSupervisor('');
         setTaskType('Other');
-        // setTaskCount('');
+        setTaskCount('');
         // setTaskPoint('');
         // setDescription('');
       } else {
