@@ -90,6 +90,7 @@ const Dashboard = () => {
     loading
   } = useTasks();
   const [filter, setFilter] = useState<FilterPeriod>('all');
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({ from: undefined, to: undefined });
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTaskType, setSelectedTaskType] = useState<TaskType | 'all'>('all');
 
@@ -108,9 +109,10 @@ const Dashboard = () => {
   const getFilteredTasks = () => {
     let filteredTasks = allTasks;
 
-    if (filter === 'specific' && selectedDate) {
-      const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      filteredTasks = filteredTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+    if (filter === 'specific' && dateRange.from) {
+      const fromDtr = format(dateRange.from, 'yyyy-MM-dd');
+      const toStr = dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : fromDtr;
+      filteredTasks = filteredTasks.filter(task => task.date.toString().split('T')[0] >= fromDtr && task.date.toString().split('T')[0] <= toStr);
     } else {
       filteredTasks = getTasksByPeriod(filter === 'specific' ? 'all' : filter);
     }
@@ -124,13 +126,14 @@ const Dashboard = () => {
 
   // Get stats based on filter type
   const getFilteredStats = () => {
-    if (filter === 'specific' && selectedDate || selectedTaskType !== 'all') {
+    if (filter === 'specific' && dateRange.from || selectedTaskType !== 'all') {
       // Custom filtering needed
       let dayTasks = allTasks;
 
-      if (filter === 'specific' && selectedDate) {
-        const dateStr = format(selectedDate, 'yyyy-MM-dd');
-        dayTasks = dayTasks.filter(task => task.date.toString().split('T')[0] === dateStr);
+      if (filter === 'specific' && dateRange.from) {
+        const fromStr = format(dateRange.from, 'yyyy-MM-dd');
+        const toStr = dateRange.to ? format(dateRange.to, 'yyyy-MM-dd') : fromStr;
+        dayTasks = dayTasks.filter(task => task.date.toString().split('T')[0] >= fromStr && task.date.toString().split('T')[0] <= toStr);
       } else if (filter !== 'specific') {
         dayTasks = getTasksByPeriod(filter);
       }
@@ -203,15 +206,19 @@ const Dashboard = () => {
     { value: 'all', label: t('dashboard.all') },
   ];
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date);
-    if (date) {
-      setFilter('specific');
+  const handleDateRangeSelect = (range: { from: Date | undefined; to?: Date | undefined } | undefined) => {
+    if (range) {
+      setDateRange({ from: range.from, to: range.to });
+      if (range.from) {
+        setFilter('specific');
+      }
+    } else {
+      setDateRange({ from: undefined, to: undefined });
     }
   };
 
   const clearDateFilter = () => {
-    setSelectedDate(undefined);
+    setDateRange({ from: undefined, to: undefined });
     setFilter('all');
   };
 
@@ -357,15 +364,15 @@ const Dashboard = () => {
                 {filterOptions.map((option) => (
                   <Button
                     key={option.value}
-                    variant={filter === option.value && !selectedDate ? 'default' : 'ghost'}
+                    variant={filter === option.value && !dateRange.from ? 'default' : 'ghost'}
                     size="sm"
                     onClick={() => {
                       setFilter(option.value);
-                      setSelectedDate(undefined);
+                      setDateRange({ from: undefined, to: undefined });
                     }}
                     className={cn(
                       "transition-all",
-                      filter === option.value && !selectedDate && "shadow-md"
+                      filter === option.value && !dateRange.from && "shadow-md"
                     )}
                   >
                     {option.label}
@@ -377,22 +384,31 @@ const Dashboard = () => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant={selectedDate ? 'default' : 'outline'}
+                    variant={dateRange.from ? 'default' : 'outline'}
                     size="sm"
                     className={cn(
                       "gap-2",
-                      selectedDate && "shadow-md"
+                      dateRange.from && "shadow-md"
                     )}
                   >
                     <CalendarIcon className="w-4 h-4" />
-                    {selectedDate ? format(selectedDate, 'PPP') : (t('selectDate') || 'Pick a date')}
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        `${format(dateRange.from, 'MMM d')} - ${format(dateRange.to, 'MMM d')}`
+                      ) : (
+                        format(dateRange.from, 'PPP')
+                      )
+                    ) : (
+                      t('selectDate') || 'Pick dates'
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-popover z-50" align="end">
                   <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={handleDateSelect}
+                    mode="range"
+                    selected={dateRange.from ? { from: dateRange.from, to: dateRange.to } : undefined}
+                    onSelect={handleDateRangeSelect}
+                    numberOfMonths={2}
                     initialFocus
                     className="p-3 pointer-events-auto"
                   />
@@ -400,7 +416,7 @@ const Dashboard = () => {
               </Popover>
 
               {/* Clear date filter */}
-              {selectedDate && (
+              {dateRange.from && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -517,7 +533,7 @@ const Dashboard = () => {
                       <TableCell>
                         <div>
                           <p className="font-medium group-hover:text-primary transition-colors">{stat.name.charAt(0).toUpperCase() + stat.name.slice(1)}</p>
-                          <p className="text-sm text-muted-foreground">{stat.email}</p>
+                          {/* <p className="text-sm text-muted-foreground">{stat.email}</p> */}
                         </div>
                       </TableCell>
 
