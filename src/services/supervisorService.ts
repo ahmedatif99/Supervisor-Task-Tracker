@@ -49,7 +49,7 @@ export const supervisorService = {
         DATABASE_ID,
         SUPERVISORS_COLLECTION_ID,
         [Query.orderDesc('total_task'), 
-          Query.limit(10000)
+          Query.limit(1000000)
         ]
       );
       return response.documents.map((doc) => transformSupervisor(doc as unknown as AppwriteSupervisor));

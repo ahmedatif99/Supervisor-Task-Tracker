@@ -93,7 +93,7 @@ export const taskService = {
         DATABASE_ID,
         TASKS_COLLECTION_ID,
         [Query.orderDesc('$createdAt'), 
-          Query.limit(15000)
+          Query.limit(150000)
         ]
       );
       return response.documents.map((doc) => transformTask(doc as unknown as AppwriteTask));

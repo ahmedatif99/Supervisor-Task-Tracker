@@ -73,7 +73,7 @@ export const getTasks = async () => {
             'YOUR_COLLECTION_ID',
             [
                 Query.orderDesc("$createdAt"), // Show newest tasks first
-                Query.limit(2500)               // Limit to 25 results
+                Query.limit(250000)               // Limit to 25 results
             ]
         );
         return response.documents;
